@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using PerunDrawer;
 using UnityEngine;
 
 public class List : MonoBehaviour
@@ -11,15 +12,22 @@ public class List : MonoBehaviour
         public int IntValue;
         public string StrValue;
         public Color ColorValue;
-        public AnimationCurve Curve;
+        [SerializeField]
+        private AnimationCurve _curve;
+        
+        public List<Item> ItemList;
     }
     
     public int Int;
     public string String;
     public Color Color;
+    
+    [ListDrawer]
     public List<Item> ItemList;
+    
     public Item[] ItemArray;
     public List<int> IntList;
     public int[] IntArray;
     public Item Data;
+    
 }

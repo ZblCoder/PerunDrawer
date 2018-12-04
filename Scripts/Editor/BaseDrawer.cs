@@ -14,6 +14,11 @@ namespace PerunDrawer
     {
         private Dictionary<string, AnimBool> _foldoutStates = new Dictionary<string, AnimBool>();
 
+        private void DrawDefault(SerializedProperty property)
+        {
+            EditorGUILayout.PropertyField(property, true);
+        }
+        
         private void DrawProperty(SerializedProperty property, Type type, List<Attribute> attrList)
         {
             if(attrList == null)
@@ -21,62 +26,130 @@ namespace PerunDrawer
             
             if (property.isArray && property.propertyType != SerializedPropertyType.String)
             {
-                FieldInfo info = type.GetField(property.name);
-                Type type1 = info.FieldType.IsGenericType ? info.FieldType.GetGenericArguments().First() : info.FieldType.GetElementType();
-                
-                DrawList(property, type1, attrList);
-                return;
+                if (attrList.Exists(e => e is ListDrawerAttribute))
+                {
+                    FieldInfo info = type.GetField(property.name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    if (info != null)
+                    {
+                        Type type1 = info.FieldType.IsGenericType ? info.FieldType.GetGenericArguments().First() : info.FieldType.GetElementType();
+                        DrawList(property, type1, attrList);
+                        return;
+                    }
+                }
             }
+            else
             if (property.propertyType == SerializedPropertyType.Generic)
             {
-                FieldInfo info = type.GetField(property.name);
-                DrawGenericBox(property, info.FieldType);
+                DrawGeneric(property, type);
                 return;
             }
-            
-            EditorGUILayout.PropertyField(property, true, new GUILayoutOption[0]);
+
+            DrawDefault(property);
         }
 
         private void DrawList(SerializedProperty property, Type type, List<Attribute> attrList)
         {
-            EditorGUILayout.LabelField(property.displayName + " [" + property.arraySize + "]");
+            var attr = attrList.FirstOrDefault() as ListDrawerAttribute;
+            if(attr == null)
+                attr = new ListDrawerAttribute();
             
-            for (int i = 0; i < property.arraySize; i++)
-               DrawProperty(property.GetArrayElementAtIndex(i), type, attrList);
+            EditorGUILayout.BeginVertical(Style.ListBackground);
+            
+            AnimBool animBool = GetAnimBool(property.propertyPath, property.isExpanded);
+            // Header
 
-            if (GUILayout.Button("+"))
+            EditorGUILayout.BeginHorizontal(Style.Toolbar);
+            
+            property.isExpanded = EditorGUILayout.Foldout(property.isExpanded, new GUIContent(property.displayName + " [" + property.arraySize + "]"));
+            animBool.target = property.isExpanded;
+
+            if (attr.ShowAddButton && GUILayout.Button("", Style.ToolbarAddButton, GUILayout.Width(32)))
             {
-                property.InsertArrayElementAtIndex(property.arraySize);
+                int index = property.arraySize;
+                property.InsertArrayElementAtIndex(index);
             }
+
+            EditorGUILayout.EndHorizontal();
+            //
+
+            EditorGUILayout.BeginVertical(Style.ListContent);
+            
+            if (EditorGUILayout.BeginFadeGroup(animBool.faded))
+
+                for (int i = 0; i < property.arraySize; i++)
+                {
+                    EditorGUILayout.BeginHorizontal(Style.ListItem);
+                    
+                    EditorGUILayout.BeginVertical();
+                    DrawProperty(property.GetArrayElementAtIndex(i), type, attrList);
+                    EditorGUILayout.EndVertical();
+                    //
+            
+                    if (attr.ShowRemoveButton && GUILayout.Button("", Style.ListDeleteItem, GUILayout.Width(16)))
+                    {
+                        
+                    }
+                    
+                    EditorGUILayout.EndHorizontal();
+                }
+            EditorGUILayout.EndFadeGroup();
+            
+            EditorGUILayout.EndVertical();
+            //
+            
+            EditorGUILayout.EndVertical();
         }
         
         private void DrawGeneric(SerializedProperty iterator, Type type)
         {
+            string parentPath = iterator.propertyPath;
             for (bool enterChildren = true; iterator.NextVisible(enterChildren); enterChildren = false)
-                using (new EditorGUI.DisabledScope("m_Script" == iterator.propertyPath))
-                    DrawProperty(iterator.Copy(), type, null);
+                if (string.IsNullOrEmpty(parentPath) || iterator.propertyPath.IndexOf(parentPath, StringComparison.Ordinal) == 0)
+                {
+                    using (new EditorGUI.DisabledScope("m_Script" == iterator.propertyPath))
+                        DrawProperty(iterator.Copy(), type, null);
+                }
         }
         
         private void DrawGenericBox(SerializedProperty iterator, Type type)
         {
-            EditorGUILayout.BeginVertical("Box");
+            EditorGUILayout.BeginVertical(Style.ListBackground);
             
-            AnimBool animBool;
-            if (!_foldoutStates.TryGetValue(iterator.propertyPath, out animBool))
-            {
-                animBool = new AnimBool(true);
-                _foldoutStates.Add(iterator.propertyPath, animBool);
-                animBool.valueChanged.RemoveAllListeners();
-                animBool.valueChanged.AddListener(Repaint);
-            }
-                
+            AnimBool animBool = GetAnimBool(iterator.propertyPath, iterator.isExpanded);
+            // Header
+
+            EditorGUILayout.BeginHorizontal(Style.Toolbar);
+            
             iterator.isExpanded = EditorGUILayout.Foldout(iterator.isExpanded, new GUIContent(iterator.displayName));
             animBool.target = iterator.isExpanded;
+            
+            EditorGUILayout.EndHorizontal();
+            //
+
+            EditorGUILayout.BeginVertical(Style.ListContent);
+                
             if (EditorGUILayout.BeginFadeGroup(animBool.faded))
                 DrawGeneric(iterator, type);
             
             EditorGUILayout.EndFadeGroup();
             EditorGUILayout.EndVertical();
+            
+            //
+            
+            EditorGUILayout.EndVertical();
+        }
+
+        private AnimBool GetAnimBool(string path, bool value)
+        {
+            AnimBool result;
+            if (!_foldoutStates.TryGetValue(path, out result))
+            {
+                result = new AnimBool(value);
+                _foldoutStates.Add(path, result);
+                result.valueChanged.RemoveAllListeners();
+                result.valueChanged.AddListener(Repaint);
+            }
+            return result;
         }
         
         public override void OnInspectorGUI()
