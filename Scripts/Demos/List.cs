@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using PerunDrawer;
 using UnityEngine;
 
+[PerunDrawer]
 public class List : MonoBehaviour
 {
     [Serializable]

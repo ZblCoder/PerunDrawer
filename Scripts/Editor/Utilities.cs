@@ -9,6 +9,8 @@ namespace PerunDrawer
 {
 	public class Utilities : MonoBehaviour
 	{
+		
+		
 		public static List<Attribute> GetAttrib(Type classType, string fieldName)
 		{
 			FieldInfo info = classType.GetField(fieldName);
