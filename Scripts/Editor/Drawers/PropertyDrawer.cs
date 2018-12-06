@@ -6,19 +6,21 @@ using UnityEditor;
 
 namespace PerunDrawer
 {
-	public static class PropertyDrawer
+	public class PropertyDrawer : BaseDrawer
 	{
-		public static void Draw(SerializedProperty property, Type type, List<Attribute> attrList)
+		public PropertyDrawer(PerunEditor editor) : base(editor) {}
+
+		public override void Draw(SerializedProperty property, Type type, List<Attribute> attrList)
 		{
 			if (property.isArray && property.propertyType != SerializedPropertyType.String)
 			{
-				if (attrList.Exists(e => e is ListDrawerAttribute))
+				//if (attrList.Exists(e => e is ListDrawerAttribute))
 				{
 					FieldInfo info = type.GetField(property.name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
 					if (info != null)
 					{
 						Type type1 = info.FieldType.IsGenericType ? info.FieldType.GetGenericArguments().First() : info.FieldType.GetElementType();
-						ListDrawer.Draw(property, type1, attrList);
+						Editor.List.Draw(property, type1, attrList);
 						return;
 					}
 				}
@@ -26,7 +28,7 @@ namespace PerunDrawer
 			else
 			if (property.propertyType == SerializedPropertyType.Generic)
 			{
-				GenericDrawer.DrawBox(property, type, attrList);
+				Editor.Generic.Draw(property, type, attrList);
 				return;
 			}
 

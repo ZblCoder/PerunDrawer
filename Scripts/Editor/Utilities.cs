@@ -3,13 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using UnityEditor;
+using UnityEditor.AnimatedValues;
 using UnityEngine;
 
 namespace PerunDrawer
 {
-	public class Utilities : MonoBehaviour
+	public static class Utilities
 	{
-		
 		
 		public static List<Attribute> GetAttrib(Type classType, string fieldName)
 		{
