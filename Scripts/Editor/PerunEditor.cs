@@ -17,7 +17,7 @@ namespace PerunDrawer
         public List<Attribute> Attributes;
         private Dictionary<string, AnimBool> _foldoutStates = new Dictionary<string, AnimBool>();
         
-        private void Awake()
+        private void OnEnable()
         {
             List = new ListDrawer(this);
             Property = new PropertyDrawer(this);

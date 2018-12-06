@@ -50,7 +50,7 @@ namespace PerunDrawer
             
                     if (attr.ShowRemoveButton && GUILayout.Button("", Style.ListDeleteItem, GUILayout.Width(16)))
                     {
-                        
+                        property.DeleteArrayElementAtIndex(i);
                     }
                     
                     EditorGUILayout.EndHorizontal();
