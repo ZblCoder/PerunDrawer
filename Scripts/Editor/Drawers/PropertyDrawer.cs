@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
+using UnityEngine;
 
 namespace PerunDrawer
 {
@@ -12,6 +13,7 @@ namespace PerunDrawer
 
 		public override void Draw(SerializedProperty property, Type type, List<Attribute> attrList)
 		{
+			var parent = Utilities.GetParent(property);
 			if (property.isArray && property.propertyType != SerializedPropertyType.String)
 			{
 				//if (attrList.Exists(e => e is ListDrawerAttribute))
@@ -20,7 +22,7 @@ namespace PerunDrawer
 					if (info != null)
 					{
 						Type type1 = info.FieldType.IsGenericType ? info.FieldType.GetGenericArguments().First() : info.FieldType.GetElementType();
-						Editor.List.Draw(property, type1, attrList);
+						Editor.List.Draw(property, type1, info.GetCustomAttributes(false).Cast<Attribute>().ToList());
 						return;
 					}
 				}
@@ -32,7 +34,10 @@ namespace PerunDrawer
 				return;
 			}
 
-			EditorGUILayout.PropertyField(property, true);
+			attrList = Utilities.GetAttrib(parent.GetType(), property.name);
+			GUIContent labelText = attrList != null && attrList.Exists(e => e is HideLabelAttribute) ? GUIContent.none : new GUIContent(property.displayName);
+			
+			EditorGUILayout.PropertyField(property, labelText, true);
 		}
 	}
 }

@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using UnityEditor;
 using UnityEditor.AnimatedValues;
 using UnityEngine;
@@ -10,18 +13,19 @@ namespace PerunDrawer
     {
         public GenericDrawer(PerunEditor editor) : base(editor) {}
         
-        public override void Draw(SerializedProperty iterator, Type type, List<Attribute> attrList)
+        public override void Draw(SerializedProperty property, Type type, List<Attribute> attrList)
         {
-            string parentPath = iterator.propertyPath;
+            var iterator = property.Copy();
             for (bool enterChildren = true; iterator.NextVisible(enterChildren); enterChildren = false)
-                if (string.IsNullOrEmpty(parentPath) || iterator.propertyPath.IndexOf(parentPath, StringComparison.Ordinal) == 0)
+                if (string.IsNullOrEmpty(property.propertyPath) || iterator.propertyPath.IndexOf(property.propertyPath, StringComparison.Ordinal) == 0)
                 {
                     using (new EditorGUI.DisabledScope("m_Script" == iterator.propertyPath))
                         Editor.Property.Draw(iterator.Copy(), type, attrList);
+                    
                 }
         }
         
-        public void DrawBox(SerializedProperty iterator, Type type, List<Attribute> attrList)
+        public void DrawBox(SerializedProperty iterator, object parent, Type type, List<Attribute> attrList)
         {
             EditorGUILayout.BeginVertical(Style.ListBackground);
             

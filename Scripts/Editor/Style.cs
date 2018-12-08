@@ -34,7 +34,6 @@ namespace PerunDrawer
         }
 
         private static GUIStyle _backgroundFocus;
-
         public static GUIStyle BackgroundFocus
         {
             get
@@ -99,7 +98,7 @@ namespace PerunDrawer
                 if (_listBackground == null)
                 {
                     _listBackground = new GUIStyle(GUI.skin.GetStyle("GroupBox"));
-                    _listBackground.margin = new RectOffset(0, 0, 0, 10);
+                    _listBackground.margin = new RectOffset(0, 0, 0, 3);
                     _listBackground.padding = new RectOffset(1, 1, 1, 1);
                 }
 
@@ -115,9 +114,23 @@ namespace PerunDrawer
                 if (_listContent == null)
                 {
                     _listContent = new GUIStyle();
-                    _listContent.padding = new RectOffset(4, 4, 4, 4);
+                    _listContent.padding = new RectOffset(4, 0, 4, 3);
                 }
                 return _listContent;
+            }
+        }
+        
+        private static GUIStyle _listContentEmpty;
+        public static GUIStyle ListContentEmpty
+        {
+            get
+            {
+                if (_listContentEmpty == null)
+                {
+                    _listContentEmpty = new GUIStyle();
+                    _listContentEmpty.padding = new RectOffset(4, 0, 1, 1);
+                }
+                return _listContentEmpty;
             }
         }
     
@@ -129,9 +142,26 @@ namespace PerunDrawer
                 if (_listItem == null)
                 {
                     _listItem = new GUIStyle();
+                    _listItem.margin = new RectOffset(0, 0, 2, 1);
+                    _listItem.padding = new RectOffset(0, 0, 0, 0);
                     //_listItem.margin = new RectOffset(0, 0, 0, 1);
                 }
                 return _listItem;
+            }
+        }
+        
+        private static GUIStyle _listItemBox;
+        public static GUIStyle ListItemBox
+        {
+            get
+            {
+                if (_listItemBox == null)
+                {
+                    _listItemBox = new GUIStyle(GUI.skin.GetStyle("GroupBox"));
+                    _listItemBox.margin = new RectOffset(2, 2, 0, 0);
+                    _listItemBox.padding = new RectOffset(3, 3, 3, 3);
+                }
+                return _listItemBox;
             }
         }
 
@@ -201,6 +231,7 @@ namespace PerunDrawer
                 {
                     _toolbar = new GUIStyle(GUI.skin.GetStyle("Toolbar"));
                     _toolbar.padding = new RectOffset(16, 0, 0, 0);
+                    _toolbar.margin = new RectOffset();
                 }
                 return _toolbar;
             }
@@ -219,6 +250,23 @@ namespace PerunDrawer
                     _toolbarLabel.alignment = TextAnchor.MiddleLeft;
                 }
                 return _toolbarLabel;
+            }
+        }
+        
+        private static GUIStyle _toolbarLabelRight;
+        public static GUIStyle ToolbarLabelRight
+        {
+            get
+            {
+                if (_toolbarLabelRight == null)
+                {
+                    _toolbarLabelRight = new GUIStyle(GUI.skin.GetStyle("Toolbar"));
+                    _toolbarLabelRight.normal.background = null;
+                    _toolbarLabelRight.padding = new RectOffset(0, 5, 2, 0);
+                    _toolbarLabelRight.alignment = TextAnchor.UpperRight;
+                    
+                }
+                return _toolbarLabelRight;
             }
         }
     
@@ -245,6 +293,8 @@ namespace PerunDrawer
                 if (_toolbarAddButton == null)
                 {
                     _toolbarAddButton = new GUIStyle(GUI.skin.GetStyle("OL Plus"));
+                    _toolbarAddButton.imagePosition = ImagePosition.ImageOnly;
+                    _toolbarAddButton.margin = new RectOffset(0, 2, 1, 0);
                     /*
                 GUIStyle plus = GUI.skin.GetStyle("OL Plus");
                 _toolbarAddButton.normal.background = plus.normal.background;

@@ -7,5 +7,17 @@ namespace PerunDrawer
     {
         public bool ShowAddButton = true;
         public bool ShowRemoveButton = true;
+        public bool ShowDrag = true;
+        public bool ShowCount = true;
+        
+        public enum ItemTypes
+        {
+            None,
+            FadeGroup,
+            Box,
+            HorizontalGroup
+        }
+        
+        public ItemTypes ItemType = ItemTypes.FadeGroup;
     }
 }
