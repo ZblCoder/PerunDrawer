@@ -175,7 +175,7 @@ namespace PerunDrawer
                             if (e.type == EventType.DragPerform)
                             {
                                 DragAndDrop.AcceptDrag();
-                                Debug.Log("Drag");
+                                //Debug.Log("Drag");
                                 _isDrag = false;
                                 _dropLine = Rect.zero;
                                 if(dropRect.Action != null)

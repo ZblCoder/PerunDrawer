@@ -73,16 +73,16 @@ namespace PerunDrawer
             {
                 if (ListDragData.Editor == Editor && ListDragData.ListPath == listPath)
                     return true;
-                
+                /*
                 SerializedProperty dragProperty = ListDragData.Editor.serializedObject.FindProperty(ListDragData.ListPath);
                 SerializedProperty dropProperty = Editor.serializedObject.FindProperty(listPath);
                 if (dragProperty == null || dropProperty == null)
                     return false;
-                
-                Debug.Log(dragProperty.type + " > " + dropProperty.type);
+                */
+                //Debug.Log(dragProperty.type + " > " + dropProperty.type);
                 
                 //if (dragProperty.propertyType == dropProperty.propertyType)
-                    return true;
+                  //  return true;
                 
             }
             return false;
@@ -95,7 +95,7 @@ namespace PerunDrawer
                 SerializedProperty dropProperty = Editor.serializedObject.FindProperty(listPath);
                 if (ListDragData.Editor == Editor && ListDragData.ListPath == listPath)
                 {
-                    Debug.Log(ListDragData.Index + " > " + index);
+                    //Debug.Log(ListDragData.Index + " > " + index);
                     dropProperty.MoveArrayElement(ListDragData.Index, index >= 0 ? (ListDragData.Index < index ? index - 1 : index) : dropProperty.arraySize - 1);
                     return;
                 }
