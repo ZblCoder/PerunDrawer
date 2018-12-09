@@ -11,6 +11,21 @@ namespace PerunDrawer
     public class ListDrawer : BaseDrawer
     {
         public ListDrawer(PerunEditor editor) : base(editor) {}
+        
+        public class DragData
+        {
+            public Editor Editor;
+            public string ListPath;
+            public int Index;
+
+            public DragData(Editor editor, string listPath, int index)
+            {
+                Editor = editor;
+                ListPath = listPath;
+                Index = index;
+            }
+        }
+        public static DragData ListDragData = null;
 
         private void DrawItem(ListDrawerAttribute attr, SerializedProperty property, int index, Type type, List<Attribute> attrList, object parent)
         {
@@ -51,6 +66,43 @@ namespace PerunDrawer
             }
         }
         
+        private bool DropValidate(string listPath)
+        {
+            //return true;
+            if (ListDragData != null)
+            {
+                if (ListDragData.Editor == Editor && ListDragData.ListPath == listPath)
+                    return true;
+                
+                SerializedProperty dragProperty = ListDragData.Editor.serializedObject.FindProperty(ListDragData.ListPath);
+                SerializedProperty dropProperty = Editor.serializedObject.FindProperty(listPath);
+                if (dragProperty == null || dropProperty == null)
+                    return false;
+                
+                Debug.Log(dragProperty.type + " > " + dropProperty.type);
+                
+                //if (dragProperty.propertyType == dropProperty.propertyType)
+                    return true;
+                
+            }
+            return false;
+        }
+
+        private void Drop(string listPath, int index)
+        {
+            if (ListDragData != null)
+            {
+                SerializedProperty dropProperty = Editor.serializedObject.FindProperty(listPath);
+                if (ListDragData.Editor == Editor && ListDragData.ListPath == listPath)
+                {
+                    Debug.Log(ListDragData.Index + " > " + index);
+                    dropProperty.MoveArrayElement(ListDragData.Index, index >= 0 ? (ListDragData.Index < index ? index - 1 : index) : dropProperty.arraySize - 1);
+                    return;
+                }
+                        
+            }
+        }
+        
         public override void Draw(SerializedProperty property, Type type, List<Attribute> attrList)
         {
             var parent = Utilities.GetParent(property);
@@ -64,11 +116,10 @@ namespace PerunDrawer
             {
                 dropRect = Editor.CreateDropRect();
                 dropRect.Position = rect;
-                dropRect.Object = Utilities.GetValue(parent, property.name);
-                dropRect.Validate = () =>
-                {
-                    return true;// DragAndDrop.objectReferences.FirstOrDefault(e => e is type);
+                dropRect.Validate = () =>{
+                    return DropValidate(property.propertyPath);// DragAndDrop.objectReferences.FirstOrDefault(e => e is type);
                 };
+                dropRect.Action = i => Drop(property.propertyPath, i);
             }
             
             AnimBool animBool = Editor.GetAnimBool(property.propertyPath, property.isExpanded);
@@ -119,12 +170,13 @@ namespace PerunDrawer
                         if (Event.current.type == EventType.Repaint)
                         {
                             PerunEditor.DragRect dragRect = Editor.CreateDragRect();
-                            dragRect.Position = new Rect(itemDragRect.x, itemRect.y, itemDragRect.width,
-                                itemRect.height);
+                            dragRect.Position = new Rect(itemDragRect.x, itemRect.y, itemDragRect.width, itemRect.height);
+                            int index = i;
                             dragRect.Action = () =>
                             {
                                 DragAndDrop.PrepareStartDrag();
-                                DragAndDrop.objectReferences = new[] {property.serializedObject.targetObject};
+                                //DragAndDrop.objectReferences = new[] {property.serializedObject.targetObject};
+                                ListDragData = new DragData(Editor, property.propertyPath, index);
                                 //DragAndDrop.paths = new[] {itemProperty.propertyPath};
                                 DragAndDrop.StartDrag(itemProperty.propertyPath);
                             };

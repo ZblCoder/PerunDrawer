@@ -22,9 +22,9 @@ namespace PerunDrawer
         public class DropRect
         {
             public Rect Position;
-            public object Object;
             public List<Rect> Childs = new List<Rect>();
             public Func<bool> Validate;
+            public Action<int> Action;
         }
         
         public ListDrawer List;
@@ -178,6 +178,9 @@ namespace PerunDrawer
                                 Debug.Log("Drag");
                                 _isDrag = false;
                                 _dropLine = Rect.zero;
+                                if(dropRect.Action != null)
+                                    dropRect.Action.Invoke(index);
+                                ListDrawer.ListDragData = null;
                             }
                         }
                         break;
@@ -193,6 +196,7 @@ namespace PerunDrawer
                 case EventType.DragExited:
                     _isDrag = false;
                     _dropLine = Rect.zero;
+                    ListDrawer.ListDragData = null;
                     break;
             }
             
