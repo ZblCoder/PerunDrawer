@@ -142,10 +142,11 @@ namespace PerunDrawer
             {
                 dropRect = Editor.CreateDropRect();
                 dropRect.Position = rect;
+                string path = data.Property.propertyPath;
                 dropRect.Validate = () =>{
-                    return DropValidate(data.Property.propertyPath);// DragAndDrop.objectReferences.FirstOrDefault(e => e is type);
+                    return DropValidate(path);// DragAndDrop.objectReferences.FirstOrDefault(e => e is type);
                 };
-                dropRect.Action = i => Drop(data.Property.propertyPath, i);
+                dropRect.Action = i => Drop(path, i);
             }
             
             AnimBool animBool = Editor.GetAnimBool(data.Property.propertyPath, data.Property.isExpanded);
@@ -198,11 +199,12 @@ namespace PerunDrawer
                             PerunEditor.DragRect dragRect = Editor.CreateDragRect();
                             dragRect.Position = new Rect(itemDragRect.x, itemRect.y, itemDragRect.width, itemRect.height);
                             int index = i;
+                            string path = data.Property.propertyPath;
                             dragRect.Action = () =>
                             {
                                 DragAndDrop.PrepareStartDrag();
                                 //DragAndDrop.objectReferences = new[] {property.serializedObject.targetObject};
-                                ListDragData = new DragData(Editor, data.Property.propertyPath, index);
+                                ListDragData = new DragData(Editor, path, index);
                                 //DragAndDrop.paths = new[] {itemProperty.propertyPath};
                                 DragAndDrop.StartDrag(itemProperty.propertyPath);
                             };
