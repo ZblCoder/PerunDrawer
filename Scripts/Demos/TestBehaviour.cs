@@ -31,13 +31,13 @@ public class TestBehaviour : MonoBehaviour
     public Color Color;
     public Item Data;
     
-    [ListDrawer(ItemType = ListDrawerAttribute.ItemTypes.Box)]
+    [StructDrawer(ItemType = StructDrawerAttribute.ItemTypes.Box)]
     public List<Item> ItemListBox;
     
-    [ListDrawer(ItemType = ListDrawerAttribute.ItemTypes.None)]
+    [StructDrawer(ItemType = StructDrawerAttribute.ItemTypes.None)]
     public List<Item> ItemListNone;
     
-    [ListDrawer(ItemType = ListDrawerAttribute.ItemTypes.HorizontalGroup)]
+    [StructDrawer(ItemType = StructDrawerAttribute.ItemTypes.HorizontalGroup)]
     public List<DictionaryItem> Dictionary;
     
     public int[] IntArray;

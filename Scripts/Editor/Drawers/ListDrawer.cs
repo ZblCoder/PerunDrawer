@@ -26,7 +26,34 @@ namespace PerunDrawer
             }
         }
         public static DragData ListDragData = null;
-
+/*
+        public override void Draw(PropertyData data)
+        {            
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField(data.Property.propertyPath.Replace(".Array.data[", "["));
+            EditorGUILayout.LabelField((data.Value != null ? data.Value.GetType().ToString() : "null"));
+            EditorGUILayout.EndHorizontal();
+			
+            if (data.Attributes != null)
+            {
+                EditorGUI.indentLevel++;
+                foreach (var a in data.Attributes)
+                {
+                    EditorGUILayout.LabelField(a.GetType().ToString());
+                }
+                EditorGUI.indentLevel--;
+            }
+            
+            EditorGUI.indentLevel++;
+            for (int i = 0; i < data.Property.arraySize; i++)
+            {
+                PropertyData d = new PropertyData(data, i);
+                Editor.Property.Draw1(d);
+            }
+            EditorGUI.indentLevel--;
+            
+        }
+        
         private void DrawItem(ListDrawerAttribute attr, SerializedProperty property, int index, Type type, List<Attribute> attrList, object parent)
         {
             switch (attr.ItemType)
@@ -65,7 +92,7 @@ namespace PerunDrawer
                     break;
             }
         }
-        
+        */
         private bool DropValidate(string listPath)
         {
             //return true;
@@ -103,10 +130,9 @@ namespace PerunDrawer
             }
         }
         
-        public override void Draw(SerializedProperty property, Type type, List<Attribute> attrList)
+        public override void Draw(PropertyData data)
         {
-            var parent = Utilities.GetParent(property);
-            var attr = attrList.FirstOrDefault() as ListDrawerAttribute;
+            var attr = data.Attributes.FirstOrDefault() as ListDrawerAttribute;
             if(attr == null)
                 attr = new ListDrawerAttribute();
             
@@ -117,43 +143,43 @@ namespace PerunDrawer
                 dropRect = Editor.CreateDropRect();
                 dropRect.Position = rect;
                 dropRect.Validate = () =>{
-                    return DropValidate(property.propertyPath);// DragAndDrop.objectReferences.FirstOrDefault(e => e is type);
+                    return DropValidate(data.Property.propertyPath);// DragAndDrop.objectReferences.FirstOrDefault(e => e is type);
                 };
-                dropRect.Action = i => Drop(property.propertyPath, i);
+                dropRect.Action = i => Drop(data.Property.propertyPath, i);
             }
             
-            AnimBool animBool = Editor.GetAnimBool(property.propertyPath, property.isExpanded);
+            AnimBool animBool = Editor.GetAnimBool(data.Property.propertyPath, data.Property.isExpanded);
             // Header
 
             EditorGUILayout.BeginHorizontal(Style.Toolbar);
             
-            property.isExpanded = EditorGUILayout.Foldout(property.isExpanded, new GUIContent(property.displayName));
-            animBool.target = property.isExpanded;
+            data.Property.isExpanded = EditorGUILayout.Foldout(data.Property.isExpanded, new GUIContent(data.Property.displayName));
+            animBool.target = data.Property.isExpanded;
 
-            EditorGUILayout.LabelField(property != null && property.arraySize > 0 ? property.arraySize + " items" : "empty", Style.ToolbarLabelRight, GUILayout.Width(100));
+            EditorGUILayout.LabelField(data.Property != null && data.Property.arraySize > 0 ? data.Property.arraySize + " items" : "empty", Style.ToolbarLabelRight, GUILayout.Width(100));
             
             if (attr.ShowAddButton && GUILayout.Button("", Style.ToolbarAddButton, GUILayout.Width(18)))
             {
-                int index = property.arraySize;
-                property.InsertArrayElementAtIndex(index);
-                property.serializedObject.ApplyModifiedProperties();
+                int index = data.Property.arraySize;
+                data.Property.InsertArrayElementAtIndex(index);
+                data.Property.serializedObject.ApplyModifiedProperties();
             }
 
             EditorGUILayout.EndHorizontal();
             //
 
-            EditorGUILayout.BeginVertical(property.isExpanded ? Style.ListContent : Style.ListContentEmpty);
+            EditorGUILayout.BeginVertical(data.Property.isExpanded ? Style.ListContent : Style.ListContentEmpty);
             
             if (EditorGUILayout.BeginFadeGroup(animBool.faded))
-                for (int i = 0; i < property.arraySize; i++)
+                for (int i = 0; i < data.Property.arraySize; i++)
                 {
-                    SerializedProperty itemProperty = property.GetArrayElementAtIndex(i);
+                    SerializedProperty itemProperty = data.Property.GetArrayElementAtIndex(i);
                     /*
                     if(i > 0 && itemProperty.propertyType == SerializedPropertyType.Generic)
                         EditorGUILayout.Space();
                     */
                     Rect itemRect = EditorGUILayout.BeginHorizontal(Style.ListItem);
-                    if(dropRect != null && property.isExpanded)
+                    if(dropRect != null && data.Property.isExpanded)
                         dropRect.Childs.Add(new Rect(itemRect.x - 5, itemRect.y - 1, itemRect.width + 6, itemRect.height + 2));
 
                     if (attr.ShowDrag)
@@ -176,14 +202,17 @@ namespace PerunDrawer
                             {
                                 DragAndDrop.PrepareStartDrag();
                                 //DragAndDrop.objectReferences = new[] {property.serializedObject.targetObject};
-                                ListDragData = new DragData(Editor, property.propertyPath, index);
+                                ListDragData = new DragData(Editor, data.Property.propertyPath, index);
                                 //DragAndDrop.paths = new[] {itemProperty.propertyPath};
                                 DragAndDrop.StartDrag(itemProperty.propertyPath);
                             };
                         }
                     }
 
-                    DrawItem(attr, itemProperty, i, type, attrList, parent);
+                    EditorGUILayout.BeginVertical();
+                    Editor.Property.Draw(new PropertyData(data, i));
+                    EditorGUILayout.EndVertical();
+                    //DrawItem(attr, itemProperty, i, type, attrList, parent);
                     //
                     if (attr.ShowRemoveButton)
                     {
@@ -191,7 +220,7 @@ namespace PerunDrawer
                         deleteRect = new Rect(deleteRect.x, deleteRect.y + itemRect.height / 2 - 10, 16, 16);
                        
                         if (GUI.Button(deleteRect, GUIContent.none, Style.ListDeleteItem))
-                            property.DeleteArrayElementAtIndex(i);
+                            data.Property.DeleteArrayElementAtIndex(i);
                         
                         /*
                         if (GUILayout.Button("", Style.ListDeleteItem, GUILayout.Width(16)))

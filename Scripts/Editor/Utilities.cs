@@ -11,12 +11,64 @@ namespace PerunDrawer
 {
 	public static class Utilities
 	{
-		public static List<Attribute> GetAttrib(Type classType, string fieldName)
+		public static T GetValue<T>(object source, string name, T defaultValue)
 		{
-			FieldInfo info = classType.GetField(fieldName);
-			if (info != null)
-				return info.GetCustomAttributes(false).Cast<Attribute>().ToList();
+			T result;
+			return GetValue(source, name, out result) ? result : defaultValue;
+		}
+
+		public static bool GetValue<T>(object source, string name, out T value)
+		{
+			if (source != null)
+			{
+				Type type = source.GetType();
+				FieldInfo field = type.GetField(name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+				if (field != null && field.FieldType == typeof(T))
+				{
+					value = (T) field.GetValue(source);
+					return true;
+				}
+				PropertyInfo property = type.GetProperty(name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+				if (property != null && property.PropertyType == typeof(T))
+				{
+					value = (T) property.GetValue(source, null);
+					return true;
+				}
+				MethodInfo method = type.GetMethod(name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+				if (method != null && method.ReturnType == typeof(T))
+				{
+					value = (T) method.Invoke(source, null);
+					return true;
+				}
+			}
+			value = default(T);
+			return false;
+		}
+
+		public static List<Attribute> GetAttributes(object source, string name)
+		{
+			if(source == null)
+				return null;
+			Type type = source.GetType();
+			
+			FieldInfo field = type.GetField(name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+			if(field != null)
+				return field.GetCustomAttributes(false).Cast<Attribute>().ToList();
+			
+			PropertyInfo property = type.GetProperty(name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+			if(property != null)
+				return property.GetCustomAttributes(false).Cast<Attribute>().ToList();
+			
+			MethodInfo method = type.GetMethod(name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+			if(method != null)
+				return method.GetCustomAttributes(false).Cast<Attribute>().ToList();
+			
 			return null;
+		}
+		
+		public static List<Attribute> GetTypeAttributes(object source)
+		{
+			return source != null ? source.GetType().GetCustomAttributes(false).Cast<Attribute>().ToList() : null;
 		}
 		
 		public static object GetParent(SerializedProperty prop)
@@ -45,24 +97,31 @@ namespace PerunDrawer
 			if(source == null)
 				return null;
 			var type = source.GetType();
-			var f = type.GetField(name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
-			if(f == null)
-			{
-				var p = type.GetProperty(name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
-				if(p == null)
-					return null;
-				return p.GetValue(source, null);
-			}
-			return f.GetValue(source);
+			
+			var field = type.GetField(name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+			if(field != null)
+				return field.GetValue(source);
+			
+			var property = type.GetProperty(name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+			if(property != null)
+				return property.GetValue(source, null);
+			
+			return null;
 		}
 	
-		public static object GetValue(object source, string name, int index)
+		public static object GetValue(object source, int index)
 		{
-			var enumerable = GetValue(source, name) as IEnumerable;
+			var enumerable = source as IEnumerable;
 			var enm = enumerable.GetEnumerator();
 			while(index-- >= 0)
 				enm.MoveNext();
 			return enm.Current;
+		}
+		
+		public static object GetValue(object source, string name, int index)
+		{
+			var enumerable = GetValue(source, name) as IEnumerable;
+			return GetValue(enumerable, index);
 		}
 	}
 }

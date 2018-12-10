@@ -30,6 +30,7 @@ namespace PerunDrawer
         public ListDrawer List;
         public PropertyDrawer Property;
         public GenericDrawer Generic;
+        public PropertyData PropertyData { get; private set; }
 
         public List<Attribute> Attributes;
         private Dictionary<string, AnimBool> _foldoutStates = new Dictionary<string, AnimBool>();
@@ -62,8 +63,12 @@ namespace PerunDrawer
             {
                 EditorGUI.BeginChangeCheck();
                 serializedObject.Update();
-                SerializedProperty iterator = serializedObject.GetIterator();
-                Generic.Draw(iterator, serializedObject.targetObject.GetType(), Attributes);
+
+                PropertyData = new PropertyData(serializedObject);
+                Generic.Draw(PropertyData);
+                
+                //SerializedProperty iterator = serializedObject.GetIterator();
+                //Generic.Draw(iterator, serializedObject.targetObject.GetType(), Attributes);
                 DragUpdate();
                 DropUpdate();
                 serializedObject.ApplyModifiedProperties();

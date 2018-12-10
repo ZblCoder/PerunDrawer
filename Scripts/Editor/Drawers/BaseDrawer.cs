@@ -14,7 +14,7 @@ namespace PerunDrawer
             _editor = editor;
         }
         
-        public virtual void Draw(SerializedProperty property, Type type, List<Attribute> attrList)
+        public virtual void Draw(PropertyData data)
         {
             
         }

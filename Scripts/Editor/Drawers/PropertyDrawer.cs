@@ -11,33 +11,38 @@ namespace PerunDrawer
 	{
 		public PropertyDrawer(PerunEditor editor) : base(editor) {}
 
-		public override void Draw(SerializedProperty property, Type type, List<Attribute> attrList)
+		public override void Draw(PropertyData data)
 		{
-			var parent = Utilities.GetParent(property);
-			if (property.isArray && property.propertyType != SerializedPropertyType.String)
+			switch (data.Type)
 			{
-				//if (attrList.Exists(e => e is ListDrawerAttribute))
-				{
-					FieldInfo info = type.GetField(property.name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-					if (info != null)
-					{
-						Type type1 = info.FieldType.IsGenericType ? info.FieldType.GetGenericArguments().First() : info.FieldType.GetElementType();
-						Editor.List.Draw(property, type1, info.GetCustomAttributes(false).Cast<Attribute>().ToList());
-						return;
-					}
-				}
+				case PropertyData.Types.List:
+					Editor.List.Draw(data);
+					return;
+				case PropertyData.Types.Generic:
+					Editor.Generic.Draw(data);
+					return;
 			}
-			else
-			if (property.propertyType == SerializedPropertyType.Generic)
-			{
-				Editor.Generic.Draw(property, type, attrList);
-				return;
-			}
-
-			attrList = Utilities.GetAttrib(parent.GetType(), property.name);
-			GUIContent labelText = attrList != null && attrList.Exists(e => e is HideLabelAttribute) ? GUIContent.none : new GUIContent(property.displayName);
 			
-			EditorGUILayout.PropertyField(property, labelText, true);
+			GUIContent labelText = data.Attributes.Exists(e => e is HideLabelAttribute) ? GUIContent.none : new GUIContent(data.Property.displayName);
+			
+			EditorGUILayout.PropertyField(data.Property, labelText, true);
+			
+			/*
+			EditorGUILayout.BeginHorizontal();
+			EditorGUILayout.LabelField(data.Property.propertyPath.Replace(".Array.data[", "["));
+			EditorGUILayout.LabelField((data.Value != null ? data.Value.GetType().ToString() : "null"));
+			EditorGUILayout.EndHorizontal();
+			
+			if (data.Attributes != null)
+			{
+				EditorGUI.indentLevel++;
+				foreach (var a in data.Attributes)
+				{
+					EditorGUILayout.LabelField("A: " + a.GetType().ToString());
+				}
+				EditorGUI.indentLevel--;
+			}
+			*/
 		}
 	}
 }
