@@ -89,21 +89,28 @@ namespace PerunDrawer
         
         public object GetValue()
         {
-            if(Parent.Value == null)
+            if(Parent == null || Parent.Value == null)
                 return null;
 
-            if (Parent.Property.isArray && Parent.Property.propertyType != SerializedPropertyType.String)
+            try
             {
-                var enumerable = Parent.Value as IEnumerable;
-                if (enumerable != null)
+                if (Parent.Property.isArray && Parent.Property.propertyType != SerializedPropertyType.String)
                 {
-                    var enm = enumerable.GetEnumerator();
-                    while (Index-- >= 0)
-                        enm.MoveNext();
-                    return enm.Current;
+                    var enumerable = Parent.Value as IEnumerable;
+                    if (enumerable != null)
+                    {
+                        var enm = enumerable.GetEnumerator();
+                        while (Index-- >= 0)
+                            enm.MoveNext();
+                        return enm.Current;
+                    }
+                    else
+                        return null;
                 }
-                else
-                    return null;
+            }
+            catch (Exception e)
+            {
+                // todo
             }
             
             var type = Parent.Value.GetType();
@@ -136,6 +143,8 @@ namespace PerunDrawer
                 
                 AddAttributes(Utilities.GetAttributes(Parent.Value, Property.name));
                 AddAttributes(Utilities.GetTypeAttributes(Value));
+                //if (Parent.Type == Types.List)
+                //    AddAttributes(Utilities.GetElementTypeAttributes(Parent.Value));
             }
             else
                 _attributes = Utilities.GetTypeAttributes(Value);
@@ -152,6 +161,31 @@ namespace PerunDrawer
         public bool GetValue<T>(string name, out T value)
         {
             return Utilities.GetValue(Value, name, out value);
+        }
+
+        public void AddNewItem()
+        {
+            Type type = Utilities.GetElementType(Value);
+            InsertItem(Property.arraySize, Activator.CreateInstance(type));
+        }
+        
+        public void InsertItem(int index, object value)
+        {
+            Type listType = Value.GetType();
+            if (listType.IsArray)
+            {
+                Type type = Utilities.GetElementType(Value);
+                Type genericListType = typeof(List<>).MakeGenericType(type);
+                var list = (IList)Activator.CreateInstance(genericListType);
+                foreach (var e in (IEnumerable)Value)
+                    list.Add(e);
+                list.Insert(index, value);
+                var array = Array.CreateInstance(type, Property.arraySize + 1);
+                list.CopyTo(array, 0);
+                Utilities.SetValue(Parent.Value, Property.name, array);
+            }
+            else
+                ((IList) Value).Insert(index, value);
         }
     }
 }

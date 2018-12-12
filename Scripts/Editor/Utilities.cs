@@ -4,8 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
-using UnityEditor.AnimatedValues;
-using UnityEngine;
 
 namespace PerunDrawer
 {
@@ -44,6 +42,27 @@ namespace PerunDrawer
 			value = default(T);
 			return false;
 		}
+		
+		public static bool SetValue<T>(object source, string name, T value)
+		{
+			if (source != null)
+			{
+				Type type = source.GetType();
+				FieldInfo field = type.GetField(name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+				if (field != null)
+				{
+					field.SetValue(source, value);
+					return true;
+				}
+				PropertyInfo property = type.GetProperty(name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+				if (property != null)
+				{
+					property.SetValue(source, value, null);
+					return true;
+				}
+			}
+			return false;
+		}
 
 		public static List<Attribute> GetAttributes(object source, string name)
 		{
@@ -69,6 +88,20 @@ namespace PerunDrawer
 		public static List<Attribute> GetTypeAttributes(object source)
 		{
 			return source != null ? source.GetType().GetCustomAttributes(false).Cast<Attribute>().ToList() : null;
+		}
+		
+		public static List<Attribute> GetElementTypeAttributes(object source)
+		{
+			if (source == null)
+				return null;
+			Type type = GetElementType(source);
+			return type != null ? type.GetCustomAttributes(false).Cast<Attribute>().ToList() : null;
+		}
+
+		public static Type GetElementType(object source)
+		{
+			Type listType = source.GetType();
+			return listType.IsGenericType ? listType.GetGenericArguments().First() : listType.GetElementType();
 		}
 		
 		public static object GetParent(SerializedProperty prop)

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using PerunDrawer;
 using UnityEngine;
+using Random = System.Random;
 
 [PerunDrawer]
 public class TestBehaviour : MonoBehaviour
@@ -24,6 +25,11 @@ public class TestBehaviour : MonoBehaviour
         
         [SerializeField]
         private AnimationCurve _curve;
+
+        public Item()
+        {
+            IntValue = new Random().Next(100);
+        }
     }
     
     public int Int;

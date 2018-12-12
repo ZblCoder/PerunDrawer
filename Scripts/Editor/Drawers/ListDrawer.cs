@@ -17,12 +17,14 @@ namespace PerunDrawer
             public Editor Editor;
             public string ListPath;
             public int Index;
+            public object Object;
 
-            public DragData(Editor editor, string listPath, int index)
+            public DragData(Editor editor, string listPath, int index, object obj)
             {
                 Editor = editor;
                 ListPath = listPath;
                 Index = index;
+                Object = obj;
             }
         }
         public static DragData ListDragData = null;
@@ -100,6 +102,8 @@ namespace PerunDrawer
             {
                 if (ListDragData.Editor == Editor && ListDragData.ListPath == listPath)
                     return true;
+                
+                
                 /*
                 SerializedProperty dragProperty = ListDragData.Editor.serializedObject.FindProperty(ListDragData.ListPath);
                 SerializedProperty dropProperty = Editor.serializedObject.FindProperty(listPath);
@@ -161,8 +165,7 @@ namespace PerunDrawer
             
             if (attr.ShowAddButton && GUILayout.Button("", Style.ToolbarAddButton, GUILayout.Width(18)))
             {
-                int index = data.Property.arraySize;
-                data.Property.InsertArrayElementAtIndex(index);
+                data.AddNewItem();
                 data.Property.serializedObject.ApplyModifiedProperties();
             }
 
@@ -200,11 +203,12 @@ namespace PerunDrawer
                             dragRect.Position = new Rect(itemDragRect.x, itemRect.y, itemDragRect.width, itemRect.height);
                             int index = i;
                             string path = data.Property.propertyPath;
+                            object obj = data.Value;
                             dragRect.Action = () =>
                             {
                                 DragAndDrop.PrepareStartDrag();
                                 //DragAndDrop.objectReferences = new[] {property.serializedObject.targetObject};
-                                ListDragData = new DragData(Editor, path, index);
+                                ListDragData = new DragData(Editor, path, index, obj);
                                 //DragAndDrop.paths = new[] {itemProperty.propertyPath};
                                 DragAndDrop.StartDrag(itemProperty.propertyPath);
                             };
@@ -220,10 +224,10 @@ namespace PerunDrawer
                     {
                         Rect deleteRect = EditorGUILayout.GetControlRect(false, 16, GUILayout.Width(16));  
                         deleteRect = new Rect(deleteRect.x, deleteRect.y + itemRect.height / 2 - 10, 16, 16);
-                       
+
                         if (GUI.Button(deleteRect, GUIContent.none, Style.ListDeleteItem))
                             data.Property.DeleteArrayElementAtIndex(i);
-                        
+
                         /*
                         if (GUILayout.Button("", Style.ListDeleteItem, GUILayout.Width(16)))
                         {
