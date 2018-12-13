@@ -26,6 +26,8 @@ public class TestBehaviour : MonoBehaviour
         [SerializeField]
         private AnimationCurve _curve;
 
+        public List<Item> ItemListNone;
+        
         public Item()
         {
             IntValue = new Random().Next(100);

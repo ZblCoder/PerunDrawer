@@ -32,18 +32,17 @@ namespace PerunDrawer
                 ListParent = listParent;
             }
         }
-        public static DragData ListDragData = null;
         
         private bool DropValidate(object listObject, string listPath)
         {
-            //return true;
-            if (ListDragData != null)
+            DragData dragData = DragAndDrop.GetGenericData("ListDragData") as DragData;
+            if (dragData != null)
             {
-                if (ListDragData.Editor == Editor && ListDragData.ListPath == listPath)
+                if (dragData.Editor == Editor && dragData.ListPath == listPath)
                     return true;
 
                 Type listType = Utilities.GetElementType(listObject);
-                Type listType2 = Utilities.GetElementType(ListDragData.Object); 
+                Type listType2 = Utilities.GetElementType(dragData.Object); 
                 return listType != null && listType2 == listType;
             }
             return false;
@@ -51,21 +50,22 @@ namespace PerunDrawer
 
         private void Drop(object listParent, object listObject, string listPath, int index)
         {
-            if (ListDragData != null)
+            DragData dragData = DragAndDrop.GetGenericData("ListDragData") as DragData;
+            if (dragData != null)
             {
                 SerializedProperty dropProperty = Editor.serializedObject.FindProperty(listPath);
-                if (ListDragData.Editor == Editor && ListDragData.ListPath == listPath)
+                if (dragData.Editor == Editor && dragData.ListPath == listPath)
                 {
-                    dropProperty.MoveArrayElement(ListDragData.Index, index >= 0 ? (ListDragData.Index < index ? index - 1 : index) : dropProperty.arraySize - 1);
+                    dropProperty.MoveArrayElement(dragData.Index, index >= 0 ? (dragData.Index < index ? index - 1 : index) : dropProperty.arraySize - 1);
                     return;
                 }
 
                 SerializedProperty property = Editor.serializedObject.FindProperty(listPath);
-                SerializedProperty sourceList = ListDragData.Editor.serializedObject.FindProperty(ListDragData.ListPath);
+                SerializedProperty sourceList = dragData.Editor.serializedObject.FindProperty(dragData.ListPath);
                 if (property != null && sourceList != null)
                 {
-                    Utilities.ListInsert(listParent, property.name, listObject, index, Utilities.GetValue(ListDragData.Object, ListDragData.Index));
-                    Utilities.ListRemove(ListDragData.ListParent, sourceList.name, ListDragData.List, ListDragData.Index);
+                    Utilities.ListInsert(listParent, property.name, listObject, index, Utilities.GetValue(dragData.Object, dragData.Index));
+                    Utilities.ListRemove(dragData.ListParent, sourceList.name, dragData.List, dragData.Index);
                 }
             }
         }
@@ -145,8 +145,7 @@ namespace PerunDrawer
                             dragRect.Action = () =>
                             {
                                 DragAndDrop.PrepareStartDrag();
-                                ListDragData = new DragData(Editor, path, index, obj, data.Value, data.Parent.Value);
-                                DragAndDrop.SetGenericData("ListDragData", ListDragData);
+                                DragAndDrop.SetGenericData("ListDragData", new DragData(Editor, path, index, obj, data.Value, data.Parent.Value));
                                 DragAndDrop.StartDrag(itemProperty.propertyPath);
                             };
                         }

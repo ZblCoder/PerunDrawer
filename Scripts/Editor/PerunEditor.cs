@@ -184,7 +184,6 @@ namespace PerunDrawer
                                 _dropLine = Rect.zero;
                                 if(dropRect.Action != null)
                                     dropRect.Action.Invoke(index);
-                                ListDrawer.ListDragData = null;
                             }
                         }
                         break;
@@ -200,7 +199,7 @@ namespace PerunDrawer
                 case EventType.DragExited:
                     _isDrag = false;
                     _dropLine = Rect.zero;
-                    ListDrawer.ListDragData = null;
+                    //ListDrawer.ListDragData = null;
                     break;
             }
             
