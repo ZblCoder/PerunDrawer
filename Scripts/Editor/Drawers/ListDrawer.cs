@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.AnimatedValues;
+using UnityEditorInternal;
 using UnityEngine;
 
 namespace PerunDrawer
@@ -18,119 +19,54 @@ namespace PerunDrawer
             public string ListPath;
             public int Index;
             public object Object;
+            public object List;
+            public object ListParent;
 
-            public DragData(Editor editor, string listPath, int index, object obj)
+            public DragData(Editor editor, string listPath, int index, object obj, object list, object listParent)
             {
                 Editor = editor;
                 ListPath = listPath;
                 Index = index;
                 Object = obj;
+                List = list;
+                ListParent = listParent;
             }
         }
         public static DragData ListDragData = null;
-/*
-        public override void Draw(PropertyData data)
-        {            
-            EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField(data.Property.propertyPath.Replace(".Array.data[", "["));
-            EditorGUILayout.LabelField((data.Value != null ? data.Value.GetType().ToString() : "null"));
-            EditorGUILayout.EndHorizontal();
-			
-            if (data.Attributes != null)
-            {
-                EditorGUI.indentLevel++;
-                foreach (var a in data.Attributes)
-                {
-                    EditorGUILayout.LabelField(a.GetType().ToString());
-                }
-                EditorGUI.indentLevel--;
-            }
-            
-            EditorGUI.indentLevel++;
-            for (int i = 0; i < data.Property.arraySize; i++)
-            {
-                PropertyData d = new PropertyData(data, i);
-                Editor.Property.Draw1(d);
-            }
-            EditorGUI.indentLevel--;
-            
-        }
         
-        private void DrawItem(ListDrawerAttribute attr, SerializedProperty property, int index, Type type, List<Attribute> attrList, object parent)
-        {
-            switch (attr.ItemType)
-            {
-                case ListDrawerAttribute.ItemTypes.FadeGroup:
-                    if (property.propertyType == SerializedPropertyType.Generic)
-                        EditorGUILayout.GetControlRect(false, 10, GUILayout.Width(8));
-                    EditorGUILayout.BeginVertical();
-                    if (property.propertyType == SerializedPropertyType.Generic)
-                    {
-                        AnimBool animBool = Editor.GetAnimBool(property.propertyPath, property.isExpanded);
-                        property.isExpanded = EditorGUILayout.Foldout(property.isExpanded, new GUIContent(index + " :"));
-                        animBool.target = property.isExpanded;
-                        if (EditorGUILayout.BeginFadeGroup(animBool.faded))
-                            Editor.Property.Draw(property, type, attrList);
-                        EditorGUILayout.EndFadeGroup();
-                    }
-                    else
-                        Editor.Property.Draw(property, type, attrList);
-                    EditorGUILayout.EndVertical();
-                    break;
-                case ListDrawerAttribute.ItemTypes.Box:
-                    EditorGUILayout.BeginVertical(Style.ListItemBox);
-                    Editor.Property.Draw(property, type, attrList);
-                    EditorGUILayout.EndVertical();
-                    break;
-                case ListDrawerAttribute.ItemTypes.HorizontalGroup:
-                    EditorGUILayout.BeginHorizontal();
-                    Editor.Property.Draw(property, type, attrList);
-                    EditorGUILayout.EndHorizontal();
-                    break;
-                default:
-                    EditorGUILayout.BeginVertical();
-                    Editor.Property.Draw(property, type, attrList);
-                    EditorGUILayout.EndVertical();
-                    break;
-            }
-        }
-        */
-        private bool DropValidate(string listPath)
+        private bool DropValidate(object listObject, string listPath)
         {
             //return true;
             if (ListDragData != null)
             {
                 if (ListDragData.Editor == Editor && ListDragData.ListPath == listPath)
                     return true;
-                
-                
-                /*
-                SerializedProperty dragProperty = ListDragData.Editor.serializedObject.FindProperty(ListDragData.ListPath);
-                SerializedProperty dropProperty = Editor.serializedObject.FindProperty(listPath);
-                if (dragProperty == null || dropProperty == null)
-                    return false;
-                */
-                //Debug.Log(dragProperty.type + " > " + dropProperty.type);
-                
-                //if (dragProperty.propertyType == dropProperty.propertyType)
-                  //  return true;
-                
+
+                Type listType = Utilities.GetElementType(listObject);
+                Type listType2 = Utilities.GetElementType(ListDragData.Object); 
+                return listType != null && listType2 == listType;
             }
             return false;
         }
 
-        private void Drop(string listPath, int index)
+        private void Drop(object listParent, object listObject, string listPath, int index)
         {
             if (ListDragData != null)
             {
                 SerializedProperty dropProperty = Editor.serializedObject.FindProperty(listPath);
                 if (ListDragData.Editor == Editor && ListDragData.ListPath == listPath)
                 {
-                    //Debug.Log(ListDragData.Index + " > " + index);
                     dropProperty.MoveArrayElement(ListDragData.Index, index >= 0 ? (ListDragData.Index < index ? index - 1 : index) : dropProperty.arraySize - 1);
                     return;
                 }
-                        
+
+                SerializedProperty property = Editor.serializedObject.FindProperty(listPath);
+                SerializedProperty sourceList = ListDragData.Editor.serializedObject.FindProperty(ListDragData.ListPath);
+                if (property != null && sourceList != null)
+                {
+                    Utilities.ListInsert(listParent, property.name, listObject, index, Utilities.GetValue(ListDragData.Object, ListDragData.Index));
+                    Utilities.ListRemove(ListDragData.ListParent, sourceList.name, ListDragData.List, ListDragData.Index);
+                }
             }
         }
         
@@ -146,11 +82,13 @@ namespace PerunDrawer
             {
                 dropRect = Editor.CreateDropRect();
                 dropRect.Position = rect;
+                object objParent = data.Parent.Value;
+                object obj = data.Value;
                 string path = data.Property.propertyPath;
                 dropRect.Validate = () =>{
-                    return DropValidate(path);// DragAndDrop.objectReferences.FirstOrDefault(e => e is type);
+                    return DropValidate(obj, path);// DragAndDrop.objectReferences.FirstOrDefault(e => e is type);
                 };
-                dropRect.Action = i => Drop(path, i);
+                dropRect.Action = i => Drop(objParent, obj, path, i);
             }
             
             AnimBool animBool = Editor.GetAnimBool(data.Property.propertyPath, data.Property.isExpanded);
@@ -207,9 +145,8 @@ namespace PerunDrawer
                             dragRect.Action = () =>
                             {
                                 DragAndDrop.PrepareStartDrag();
-                                //DragAndDrop.objectReferences = new[] {property.serializedObject.targetObject};
-                                ListDragData = new DragData(Editor, path, index, obj);
-                                //DragAndDrop.paths = new[] {itemProperty.propertyPath};
+                                ListDragData = new DragData(Editor, path, index, obj, data.Value, data.Parent.Value);
+                                DragAndDrop.SetGenericData("ListDragData", ListDragData);
                                 DragAndDrop.StartDrag(itemProperty.propertyPath);
                             };
                         }

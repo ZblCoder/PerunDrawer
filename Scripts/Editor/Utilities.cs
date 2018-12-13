@@ -100,6 +100,8 @@ namespace PerunDrawer
 
 		public static Type GetElementType(object source)
 		{
+			if (source == null)
+				return null;
 			Type listType = source.GetType();
 			return listType.IsGenericType ? listType.GetGenericArguments().First() : listType.GetElementType();
 		}
@@ -155,6 +157,44 @@ namespace PerunDrawer
 		{
 			var enumerable = GetValue(source, name) as IEnumerable;
 			return GetValue(enumerable, index);
+		}
+		
+		public static void ListInsert(object parent, string fieldName, object source, int index, object value)
+		{
+			Type listType = source.GetType();
+			if (listType.IsArray)
+			{
+				Type type = Utilities.GetElementType(source);
+				Type genericListType = typeof(List<>).MakeGenericType(type);
+				var list = (IList)Activator.CreateInstance(genericListType);
+				foreach (var e in (IEnumerable)source)
+					list.Add(e);
+				list.Insert(index, value);
+				var array = Array.CreateInstance(type, list.Count);
+				list.CopyTo(array, 0);
+				Utilities.SetValue(parent, fieldName, array);
+			}
+			else
+				((IList) source).Insert(index, value);
+		}
+		
+		public static void ListRemove(object parent, string fieldName, object source, int index)
+		{
+			Type listType = source.GetType();
+			if (listType.IsArray)
+			{
+				Type type = Utilities.GetElementType(source);
+				Type genericListType = typeof(List<>).MakeGenericType(type);
+				var list = (IList)Activator.CreateInstance(genericListType);
+				foreach (var e in (IEnumerable)source)
+					list.Add(e);
+				list.RemoveAt(index);
+				var array = Array.CreateInstance(type, list.Count);
+				list.CopyTo(array, 0);
+				Utilities.SetValue(parent, fieldName, array);
+			}
+			else
+				((IList) source).RemoveAt(index);
 		}
 	}
 }

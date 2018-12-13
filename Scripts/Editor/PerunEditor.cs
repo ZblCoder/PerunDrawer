@@ -67,8 +67,6 @@ namespace PerunDrawer
                 PropertyData = new PropertyData(serializedObject);
                 Generic.Draw(PropertyData);
                 
-                //SerializedProperty iterator = serializedObject.GetIterator();
-                //Generic.Draw(iterator, serializedObject.targetObject.GetType(), Attributes);
                 DragUpdate();
                 DropUpdate();
                 serializedObject.ApplyModifiedProperties();
@@ -172,6 +170,7 @@ namespace PerunDrawer
                             {
                                 dropLine = dropRect.Position;
                                 dropLine.position += new Vector2(4, dropLine.height - 4);
+                                index = dropRect.Childs.Count;
                             }
 
                             dropLine.width -= 8;
