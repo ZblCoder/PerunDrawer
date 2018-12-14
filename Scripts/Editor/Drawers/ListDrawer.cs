@@ -96,10 +96,16 @@ namespace PerunDrawer
 
             EditorGUILayout.BeginHorizontal(Style.Toolbar);
             
-            data.Property.isExpanded = EditorGUILayout.Foldout(data.Property.isExpanded, new GUIContent(data.Property.displayName));
+            //data.Property.isExpanded = EditorGUILayout.Foldout(data.Property.isExpanded, new GUIContent(data.Property.displayName));
+            if(EditorGUILayout.DropdownButton(new GUIContent(data.Property.displayName), FocusType.Passive, 
+                data.Property.isExpanded ? Style.FoldoutExpanded : Style.Foldout))
+                data.Property.isExpanded = !data.Property.isExpanded;
+            
+            //Foldout
+            
             animBool.target = data.Property.isExpanded;
 
-            EditorGUILayout.LabelField(data.Property != null && data.Property.arraySize > 0 ? data.Property.arraySize + " items" : "empty", Style.ToolbarLabelRight, GUILayout.Width(100));
+            EditorGUILayout.LabelField(data.Property != null && data.Property.arraySize > 0 ? data.Property.arraySize + " items" : "empty", Style.ToolbarLabelRight, GUILayout.Width(64));
             
             if (attr.ShowAddButton && GUILayout.Button("", Style.ToolbarAddButton, GUILayout.Width(18)))
             {
@@ -138,7 +144,7 @@ namespace PerunDrawer
                         if (Event.current.type == EventType.Repaint)
                         {
                             PerunEditor.DragRect dragRect = Editor.CreateDragRect();
-                            dragRect.Position = new Rect(itemDragRect.x, itemRect.y, itemDragRect.width, itemRect.height);
+                            dragRect.Position = new Rect(itemDragRect.x - 3, itemRect.y, itemDragRect.width + 6, itemRect.height);
                             int index = i;
                             string path = data.Property.propertyPath;
                             object obj = data.Value;

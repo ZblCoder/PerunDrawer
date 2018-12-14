@@ -16,7 +16,6 @@ namespace PerunDrawer
         }
 
         private static GUIStyle _background;
-
         public static GUIStyle Background
         {
             get
@@ -60,6 +59,21 @@ namespace PerunDrawer
                 }
 
                 return _caption;
+            }
+        }
+        
+        private static GUIStyle _fideGroup;
+        public static GUIStyle FideGroup
+        {
+            get
+            {
+                if (_fideGroup == null)
+                {
+                    _fideGroup = new GUIStyle();
+                    _fideGroup.margin = new RectOffset(12, 0, 0, 0);
+                }
+
+                return _fideGroup;
             }
         }
     
@@ -230,13 +244,42 @@ namespace PerunDrawer
                 if (_toolbar == null)
                 {
                     _toolbar = new GUIStyle(GUI.skin.GetStyle("Toolbar"));
-                    _toolbar.padding = new RectOffset(16, 0, 0, 0);
+                    _toolbar.padding = new RectOffset(0, 0, 0, 0);
                     _toolbar.margin = new RectOffset();
                 }
                 return _toolbar;
             }
         }
     
+        private static GUIStyle _foldout;
+        public static GUIStyle Foldout
+        {
+            get
+            {
+                if (_foldout == null)
+                {
+                    _foldout = new GUIStyle(GUI.skin.GetStyle("Foldout"));
+                    _foldout.fixedWidth = 0;
+                    _foldout.padding = new RectOffset(14, 0, 0, 0);
+                }
+                return _foldout;
+            }
+        }
+        
+        private static GUIStyle _foldoutExpanded;
+        public static GUIStyle FoldoutExpanded
+        {
+            get
+            {
+                if (_foldoutExpanded == null)
+                {
+                    _foldoutExpanded = new GUIStyle(Foldout);
+                    _foldoutExpanded.normal.background = _foldoutExpanded.onNormal.background;
+                }
+                return _foldoutExpanded;
+            }
+        }
+        
         private static GUIStyle _toolbarLabel;
         public static GUIStyle ToolbarLabel
         {
