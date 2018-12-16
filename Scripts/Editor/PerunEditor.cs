@@ -59,7 +59,7 @@ namespace PerunDrawer
             }
             
             Attributes = serializedObject.targetObject.GetType().GetCustomAttributes(false).Cast<Attribute>().ToList();
-            if(Attributes.Exists(o => o is PerunDrawerAttribute))
+            //if(Attributes.Exists(o => o is PerunDrawerAttribute))
             {
                 EditorGUI.BeginChangeCheck();
                 serializedObject.Update();
@@ -75,8 +75,8 @@ namespace PerunDrawer
                 if(GUI.changed)
                     Repaint();
             }
-            else
-                base.OnInspectorGUI();
+            //else
+            //    base.OnInspectorGUI();
         }
         
         public AnimBool GetAnimBool(string path, bool value)
@@ -134,6 +134,15 @@ namespace PerunDrawer
             //_dropRects.ForEach(x => x.Childs.ForEach(y => GUI.Box(y, "")));
             
             Event e = Event.current;
+            switch (e.type)
+            {
+                case EventType.DragUpdated:
+                case EventType.DragPerform:
+                case EventType.DragExited:
+                    Debug.Log(e.type);
+                    break;
+            }
+
             switch (e.type) {
                 case EventType.DragUpdated:
                 case EventType.DragPerform:
@@ -145,6 +154,8 @@ namespace PerunDrawer
                         DropRect dropRect = _dropRects[i];
                         if (!dropRect.Position.Contains(e.mousePosition))
                             continue;
+
+                        GUI.Box(dropRect.Position, "");
                         
                         if (dropRect.Validate == null || dropRect.Validate())
                         {
@@ -206,6 +217,7 @@ namespace PerunDrawer
             if(_isDrag)
                 GUI.Box(_dropLine, "", Style.ListDropLine);
         }
+
     }
 }
 

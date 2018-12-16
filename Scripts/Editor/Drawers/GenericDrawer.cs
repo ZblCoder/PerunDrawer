@@ -27,6 +27,8 @@ namespace PerunDrawer
         
         public override void Draw(PropertyData data)
         {
+            //data.Attributes.ForEach(a => EditorGUILayout.LabelField(a.GetType().FullName));
+            
             var attr = data.Attributes.FirstOrDefault() as StructDrawerAttribute;
             if(attr == null)
                 attr = new StructDrawerAttribute();

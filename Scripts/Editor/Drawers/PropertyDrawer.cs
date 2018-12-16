@@ -15,6 +15,9 @@ namespace PerunDrawer
 		{
 			switch (data.Type)
 			{
+				case PropertyData.Types.SelfDrawer:
+					EditorGUILayout.PropertyField(data.Property, new GUIContent(data.Property.displayName));
+					return;
 				case PropertyData.Types.List:
 					Editor.List.Draw(data);
 					return;

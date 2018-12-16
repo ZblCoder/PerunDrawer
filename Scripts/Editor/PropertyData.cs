@@ -15,8 +15,10 @@ namespace PerunDrawer
             None,
             Property,
             Generic,
-            List
+            List,
+            SelfDrawer
         }
+        private static List<Type> _typesSelfDrawer;
         
         public SerializedProperty Property { get; private set; }
         public PropertyData Parent { get; private set; }
@@ -30,7 +32,9 @@ namespace PerunDrawer
             {
                 if (_type == Types.None)
                 {
-                    if (Property.isArray && Property.propertyType != SerializedPropertyType.String)
+                    if (IsSelfDrawer())
+                        _type = Types.SelfDrawer;
+                    else if (Property.isArray && Property.propertyType != SerializedPropertyType.String)
                         _type = Types.List;
                     else if (Property.propertyType == SerializedPropertyType.Generic)
                         _type = Types.Generic;
@@ -186,6 +190,26 @@ namespace PerunDrawer
             }
             else
                 ((IList) Value).Insert(index, value);
+        }
+        
+        public bool IsSelfDrawer()
+        {
+            if (Value == null)
+                return false;
+            
+            if (_typesSelfDrawer == null)
+            {
+                _typesSelfDrawer = new List<Type>();
+                FieldInfo field = typeof(CustomPropertyDrawer).GetField("m_Type", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+                if(field != null)
+                    foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+                        foreach (var t in assembly.GetTypes())
+                            foreach (var a in t.GetCustomAttributes(typeof(CustomPropertyDrawer), false))
+                                _typesSelfDrawer.Add(field.GetValue(a) as Type);
+                            
+            }
+            Type type = Value.GetType();
+            return _typesSelfDrawer.Exists(e => e == type);
         }
     }
 }

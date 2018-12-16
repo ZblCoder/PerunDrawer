@@ -4,7 +4,7 @@ using PerunDrawer;
 using UnityEngine;
 using Random = System.Random;
 
-[PerunDrawer]
+//[PerunDrawer]
 public class TestBehaviour : MonoBehaviour
 {
     [Serializable]
@@ -25,9 +25,9 @@ public class TestBehaviour : MonoBehaviour
         
         [SerializeField]
         private AnimationCurve _curve;
-
-        public List<Item> ItemListNone;
         
+        public TestObjectMyDrawer MyDrawer;
+
         public Item()
         {
             IntValue = new Random().Next(100);
@@ -39,7 +39,7 @@ public class TestBehaviour : MonoBehaviour
     public Color Color;
     public Item Data;
     
-    [StructDrawer(ItemType = StructDrawerAttribute.ItemTypes.Box)]
+    //[StructDrawer(ItemType = StructDrawerAttribute.ItemTypes.Box)]
     public List<Item> ItemListBox;
     
     [StructDrawer(ItemType = StructDrawerAttribute.ItemTypes.None)]
