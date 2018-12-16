@@ -15,6 +15,13 @@ namespace PerunDrawer
 
         public void DrawProperies(PropertyData data)
         {
+            var buttons = Utilities.FindByAttribute<ButtonAttribute, MethodInfo>(data.Value);
+
+            foreach (var buttonPair in buttons)
+                if(buttonPair.Key.Align == ButtonAttribute.AlignTypes.Top)
+                    if (GUILayout.Button(string.IsNullOrEmpty(buttonPair.Key.Caption) ? buttonPair.Value.Name : buttonPair.Key.Caption))
+                        buttonPair.Value.Invoke(data.Value, null);
+            
             var iterator = data.Property.Copy();
             for (bool enterChildren = true; iterator.NextVisible(enterChildren); enterChildren = false)
                 if (string.IsNullOrEmpty(data.Property.propertyPath) || iterator.propertyPath.IndexOf(data.Property.propertyPath, StringComparison.Ordinal) == 0)
@@ -23,6 +30,11 @@ namespace PerunDrawer
                     using (new EditorGUI.DisabledScope("m_Script" == iterator.propertyPath))
                         Editor.Property.Draw(itemData);
                 }
+            
+            foreach (var buttonPair in buttons)
+                if(buttonPair.Key.Align == ButtonAttribute.AlignTypes.Bottom)
+                    if (GUILayout.Button(string.IsNullOrEmpty(buttonPair.Key.Caption) ? buttonPair.Value.Name : buttonPair.Key.Caption))
+                        buttonPair.Value.Invoke(data.Value, null);
         }
         
         public override void Draw(PropertyData data)

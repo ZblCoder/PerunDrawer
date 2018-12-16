@@ -196,5 +196,20 @@ namespace PerunDrawer
 			else
 				((IList) source).RemoveAt(index);
 		}
+
+		public static Dictionary<A, T> FindByAttribute<A, T>(object source) where A : Attribute where T: MemberInfo
+		{
+			Dictionary<A, T> dictionary = new Dictionary<A, T>();
+			if (source != null)
+			{
+				Type type = source.GetType();
+				var members = type.GetMembers(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+				foreach (var member in members)
+					if (member is T)
+						foreach (var attr in member.GetCustomAttributes(typeof(A), false))
+							dictionary.Add((A)attr, (T)member);
+			}
+			return dictionary;
+		}
 	}
 }
