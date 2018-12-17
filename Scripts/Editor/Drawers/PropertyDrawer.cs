@@ -13,6 +13,25 @@ namespace PerunDrawer
 
 		public override void Draw(PropertyData data)
 		{
+			bool visible = true;
+
+			foreach (var attr in data.Attributes)
+				if(attr is VisibleAttribute)
+				{
+					VisibleAttribute visibleAttr = attr as VisibleAttribute;
+					if (visibleAttr.Value == null)
+					{
+						bool visibleValue;
+						if (Utilities.GetValue(data.Parent.Value, visibleAttr.MemberName, out visibleValue))
+							visible = visible && (visibleAttr.IsNot ? !visibleValue : visibleValue);
+						else
+							EditorGUILayout.HelpBox("VisibleAttribute: MemberName \"" + visibleAttr.MemberName + "\" not found!", MessageType.Error);
+					}
+				}
+			if (!visible)
+				return;
+			
+			
 			switch (data.Type)
 			{
 				case PropertyData.Types.SelfDrawer:
