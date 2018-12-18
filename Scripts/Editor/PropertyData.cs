@@ -54,6 +54,14 @@ namespace PerunDrawer
                     _value = GetValue();
                 return _value;
             }
+            set
+            {
+                if (_value != value)
+                {
+                    SetValue(value);
+                    _value = value;
+                }
+            }
         }
         
         private List<Attribute> _attributes;
@@ -91,7 +99,7 @@ namespace PerunDrawer
             _value = serializedObject.targetObject;
         }
         
-        public object GetValue()
+        private object GetValue()
         {
             if(Parent == null || Parent.Value == null)
                 return null;
@@ -127,6 +135,27 @@ namespace PerunDrawer
                 return property.GetValue(Parent.Value, null);
 			
             return null;
+        }
+
+        private void SetValue(object value)
+        {
+            if(Parent == null || Parent.Value == null)
+                return;
+            
+            var type = Parent.Value.GetType();
+            var field = type.GetField(Property.name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+            if (field != null)
+            {
+                field.SetValue(Parent.Value, value);
+                return;
+            }
+            
+            var property = type.GetProperty(Property.name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+            if (property != null)
+            {
+                property.SetValue(Parent.Value, value, null);
+                return;
+            }
         }
 
         private void AddAttributes(List<Attribute> attributes)

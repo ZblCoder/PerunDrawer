@@ -44,6 +44,12 @@ namespace PerunDrawer
 					Editor.Generic.Draw(data);
 					return;
 			}
+
+			if (data.Property.propertyType == SerializedPropertyType.Enum)
+			{
+				Editor.Enum.Draw(data);
+				return;
+			}
 			
 			GUIContent labelText = data.Attributes.Exists(e => e is HideLabelAttribute) ? GUIContent.none : new GUIContent(data.Property.displayName);
 			

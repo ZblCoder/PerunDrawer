@@ -6,6 +6,45 @@ using Random = System.Random;
 
 public class TestBehaviour : MonoBehaviour
 {
+    [Flags] 
+    public enum Types {   
+        A = 1 << 1,
+        B = 1 << 2,
+        C = 1 << 3,
+        ALL = A | B | C
+    }
+    
+    public Types EnumValue;
+
+    [EnumButtons]
+    public Types EnumValue1;
+
+    [EnumButtons]
+    public Types EnumValue2;
+    
+    
+    public enum Types2 {   
+        A,
+        B,
+        C
+    }
+    
+    public Types2 EnumValue3;
+    
+    [EnumButtons]
+    public Types2 EnumValue4;
+    
+    
+    
+    //[HideLabel]
+    
+    
+    
+    
+    
+    
+    
+/*
     public bool Visible = true;
 
     [Visible("Visible")]
@@ -29,7 +68,7 @@ public class TestBehaviour : MonoBehaviour
     {
         return Visible2Int % 2 == 0;
     }
-    
+    */
     /*
     [Serializable]
     public class Item
@@ -62,12 +101,13 @@ public class TestBehaviour : MonoBehaviour
     public List<Item> ItemListBox;
     
     public List<Item> ItemListFadeGroup;
-    */
+    
     [Button("Test")]
     public void MainMethod()
     {
         Debug.Log("Работает");
     }
+    */
 }
 
 
