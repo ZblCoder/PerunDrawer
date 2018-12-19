@@ -35,11 +35,7 @@ namespace PerunDrawer
                 public int Compare(OrderItem a, OrderItem b)
                 {
                     int compareDate = a.Order.CompareTo(b.Order);
-                    if (compareDate == 0)
-                    {
-                        return a.Index.CompareTo(b.Index);
-                    }
-                    return compareDate;
+                    return compareDate == 0 ? a.Index.CompareTo(b.Index) : compareDate;
                 }
             }
         }
