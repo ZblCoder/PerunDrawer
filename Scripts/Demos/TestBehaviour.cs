@@ -8,11 +8,25 @@ public class TestBehaviour : MonoBehaviour
 {
     [Flags] 
     public enum Types {   
+        None = 0,
         A = 1 << 1,
         B = 1 << 2,
         C = 1 << 3,
-        ALL = A | B | C
+        D = 1 << 4,
+        AB = A | B,
+        ALL = AB | C | D
     }
+    
+    [Serializable]
+    public struct MyStruct
+    {
+        [EnumButtons]
+        public Types Types1;
+        
+        public string strValue;
+    }
+
+    public MyStruct Struct;
     
     public Types EnumValue;
 
@@ -31,7 +45,7 @@ public class TestBehaviour : MonoBehaviour
     
     public Types2 EnumValue3;
     
-    [EnumButtons]
+    [EnumButtons, HideLabel]
     public Types2 EnumValue4;
     
     

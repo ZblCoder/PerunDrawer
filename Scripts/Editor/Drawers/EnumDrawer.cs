@@ -14,19 +14,21 @@ namespace PerunDrawer
 		public override void Draw(PropertyData data)
 		{
 			//data.Attributes.ForEach(a => EditorGUILayout.LabelField(a.GetType().FullName));
-			
-			GUIContent labelText = data.Attributes.Exists(e => e is HideLabelAttribute) ? GUIContent.none : new GUIContent(data.Property.displayName);
 			bool isFlags = data.Attributes.Exists(e => e is FlagsAttribute);
 			
 			if (data.Attributes.Exists(e => e is EnumButtonsAttribute))
 			{
+				EditorGUILayout.BeginHorizontal();
+			
+				if(!data.Attributes.Exists(e => e is HideLabelAttribute))
+					EditorGUILayout.LabelField(new GUIContent(data.Property.displayName), GUILayout.Width(EditorGUIUtility.labelWidth - 5));
+				
 				Array list = Enum.GetValues(data.Value.GetType());
 				if (list.Length > 0)
 				{
 					int buttonsIntValue = data.Property.intValue;
 					int enumLength = list.Length;
 					
-					EditorGUILayout.BeginHorizontal();
 					GUIStyle style = EditorStyles.miniButton;
 					for (int i = 0; i < enumLength; i++)
 					{
@@ -41,12 +43,12 @@ namespace PerunDrawer
 						}
 
 						int value = (int) list.GetValue(i);
-						bool lastValue = isFlags ? (data.Property.intValue & value) == value : data.Property.intValue == value;
+						bool lastValue = isFlags && value != 0 ? (data.Property.intValue & value) == value : data.Property.intValue == value;
 
 						bool newValue = GUILayout.Toggle(lastValue, data.Property.enumDisplayNames[i], style);
 						if (newValue != lastValue)
 						{
-							if (isFlags)
+							if (isFlags && value != 0)
 							{
 								if (newValue)
 									buttonsIntValue |= value;
@@ -55,17 +57,21 @@ namespace PerunDrawer
 							}
 							else
 								buttonsIntValue = value;
+							
+							data.Property.intValue = buttonsIntValue;
 						}
 					}
-					EditorGUILayout.EndHorizontal();
-					data.Property.intValue = buttonsIntValue;
 				}
+				EditorGUILayout.EndHorizontal();
 			}
-			else if (isFlags)
-				data.Value = EditorGUILayout.EnumFlagsField(labelText, (Enum) data.Value);
-			else
-				EditorGUILayout.PropertyField(data.Property, labelText, true);
-
+			else 
+			{
+				GUIContent labelText = data.Attributes.Exists(e => e is HideLabelAttribute) ? GUIContent.none : new GUIContent(data.Property.displayName);
+				if (isFlags)
+					data.Value = EditorGUILayout.EnumFlagsField(labelText, (Enum) data.Value);
+				else
+					EditorGUILayout.PropertyField(data.Property, labelText, true);
+			}
 		}
 	}
 }
