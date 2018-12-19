@@ -26,6 +26,7 @@ public class TestBehaviour : MonoBehaviour
         public string strValue;
     }
 
+    [Order(1)]
     public MyStruct Struct;
     
     public Types EnumValue;
@@ -34,6 +35,7 @@ public class TestBehaviour : MonoBehaviour
     public Types EnumValue1;
 
     [EnumButtons]
+    [Order(-1)]
     public Types EnumValue2;
     
     
