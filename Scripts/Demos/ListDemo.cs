@@ -18,6 +18,13 @@ public class ListDemo : MonoBehaviour {
     [LabelText("default weapon")]
     public Weapon defaultWeapon = new Weapon("club", 1);
 
+    [ListDrawer(ShowAddButton = false, ShowCount = false, ShowRemoveButton = false)]
+    public Weapon[] BaseInventory = new Weapon[] {
+        new Weapon("Rusty sword", 2),
+        new Weapon("Curved peak", 3),
+        new Weapon("Old spear", 4)
+    };
+
     public List<Weapon> Weapons = new List<Weapon>();
 
     [Button]
