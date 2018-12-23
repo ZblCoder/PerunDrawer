@@ -15,6 +15,9 @@ public class ListDemo : MonoBehaviour {
         }
     }
 
+    [LabelText("default weapon")]
+    public Weapon defaultWeapon = new Weapon("club", 1);
+
     public List<Weapon> Weapons = new List<Weapon>();
 
     [Button]
