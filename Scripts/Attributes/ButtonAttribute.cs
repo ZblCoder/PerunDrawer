@@ -18,12 +18,12 @@ namespace PerunDrawer
 
         public AlignTypes Align;
 
-        public ButtonAttribute(AlignTypes align = AlignTypes.Top)
+        public ButtonAttribute(AlignTypes align = AlignTypes.Bottom)
         {
             Align = align;
         }
         
-        public ButtonAttribute(string caption, AlignTypes align = AlignTypes.Top)
+        public ButtonAttribute(string caption, AlignTypes align = AlignTypes.Bottom)
         {
             Caption = caption;
             Align = align;

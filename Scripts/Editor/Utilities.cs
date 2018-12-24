@@ -15,25 +15,25 @@ namespace PerunDrawer
 			return GetValue(source, name, out result) ? result : defaultValue;
 		}
 
-		public static bool GetValue<T>(object source, string name, out T value)
+		public static bool GetValue<T>(object source, string name, out T value, bool isTypeValidate = true)
 		{
 			if (source != null)
 			{
 				Type type = source.GetType();
 				FieldInfo field = type.GetField(name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
-				if (field != null && field.FieldType == typeof(T))
+				if (field != null && (!isTypeValidate || field.FieldType == typeof(T)))
 				{
 					value = (T) field.GetValue(source);
 					return true;
 				}
 				PropertyInfo property = type.GetProperty(name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
-				if (property != null && property.PropertyType == typeof(T))
+				if (property != null && (!isTypeValidate || property.PropertyType == typeof(T)))
 				{
 					value = (T) property.GetValue(source, null);
 					return true;
 				}
 				MethodInfo method = type.GetMethod(name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
-				if (method != null && method.ReturnType == typeof(T))
+				if (method != null && (!isTypeValidate || method.ReturnType == typeof(T)))
 				{
 					value = (T) method.Invoke(source, null);
 					return true;

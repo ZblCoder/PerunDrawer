@@ -106,9 +106,22 @@ namespace PerunDrawer
 
             try
             {
-                if (Parent.Property.isArray && Parent.Property.propertyType != SerializedPropertyType.String)
+                if (Parent.Type == Types.List)
                 {
-                    var enumerable = Parent.Value as IEnumerable;
+                    Type listType = Parent.Value.GetType();
+                    if (listType.IsArray)
+                    {
+                        int i = 0;
+                        foreach (var item in Parent.Value as IEnumerable)
+                        {
+                            if(i == Index)
+                                return item;
+                            i++;
+                        }
+                    }
+                    else
+                        return ((IList)Parent.Value)[Index];
+                    /*
                     if (enumerable != null)
                     {
                         var enm = enumerable.GetEnumerator();
@@ -116,8 +129,8 @@ namespace PerunDrawer
                             enm.MoveNext();
                         return enm.Current;
                     }
-                    else
-                        return null;
+                    else*/
+                    return null;
                 }
             }
             catch (Exception e)

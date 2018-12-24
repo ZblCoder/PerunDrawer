@@ -10,27 +10,11 @@ namespace PerunDrawer
 	public class PropertyDrawer : BaseDrawer
 	{
 		public PropertyDrawer(PerunEditor editor) : base(editor) {}
-
+		
 		public override void Draw(PropertyData data)
 		{
-			bool visible = true;
-
-			foreach (var attr in data.Attributes)
-				if(attr is VisibleAttribute)
-				{
-					VisibleAttribute visibleAttr = attr as VisibleAttribute;
-					if (visibleAttr.Value == null)
-					{
-						bool visibleValue;
-						if (Utilities.GetValue(data.Parent.Value, visibleAttr.MemberName, out visibleValue))
-							visible = visible && (visibleAttr.IsNot ? !visibleValue : visibleValue);
-						else
-							EditorGUILayout.HelpBox("VisibleAttribute: MemberName \"" + visibleAttr.MemberName + "\" not found!", MessageType.Error);
-					}
-				}
-			if (!visible)
+			if(!IsVisible(data))
 				return;
-			
 			
 			switch (data.Type)
 			{
@@ -71,6 +55,51 @@ namespace PerunDrawer
 				EditorGUI.indentLevel--;
 			}
 			*/
+		}
+
+		private bool Equals(object objA, object objB)
+		{
+			return objA == objB || (objA != null && objB != null && objA.Equals(objB));
+		}
+		
+		private bool IsVisible(PropertyData data)
+		{
+			bool visible = true;
+			foreach (var attr in data.Attributes)
+				if(attr is VisibleAttribute)
+				{
+					VisibleAttribute visibleAttr = attr as VisibleAttribute;
+					if (visibleAttr.Value == null)
+					{
+						bool visibleValue;
+						if (Utilities.GetValue(data.Parent.Value, visibleAttr.MemberName, out visibleValue))
+							visible = visible && (visibleAttr.IsNot ? !visibleValue : visibleValue);
+						else
+							EditorGUILayout.HelpBox("VisibleAttribute: MemberName \"" + visibleAttr.MemberName + "\" not found!", MessageType.Error);
+					}
+					else
+					{
+						object visibleValue;
+						if (Utilities.GetValue(data.Parent.Value, visibleAttr.MemberName, out visibleValue, false)
+							&& visibleValue.GetType() == visibleAttr.Value.GetType())
+						{
+							if (visibleValue.GetType().IsEnum && visibleAttr.Value.GetType().IsEnum
+								&& visibleValue.GetType().GetCustomAttributes(false).ToList().Exists(e => e is FlagsAttribute)
+							    && (int) visibleValue != 0 && (int) visibleAttr.Value != 0)
+							{
+								visible = visible && (visibleAttr.IsNot
+											  ? ((int) visibleValue & (int) visibleAttr.Value) != (int) visibleAttr.Value
+											  : ((int) visibleValue & (int) visibleAttr.Value) == (int) visibleAttr.Value);
+								continue;
+							}
+							visible = visible && (visibleAttr.IsNot ? !Equals(visibleValue, visibleAttr.Value) : Equals(visibleValue, visibleAttr.Value));
+							continue;
+						}
+						EditorGUILayout.HelpBox("VisibleAttribute: MemberName \"" + visibleAttr.MemberName + "\" not found!", MessageType.Error);
+					}
+				}
+			
+			return visible;
 		}
 	}
 }
