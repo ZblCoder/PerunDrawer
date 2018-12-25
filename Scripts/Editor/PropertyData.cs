@@ -174,9 +174,12 @@ namespace PerunDrawer
         private void AddAttributes(List<Attribute> attributes)
         {
             if (attributes != null)
+                _attributes.AddRange(attributes);
+            /* 
                 foreach (var attribute in attributes)
                     if (!_attributes.Exists(e => e.GetType() == attribute.GetType()))
                         _attributes.Add(attribute);
+            */
         }
 
         private void UpdateAttributes()

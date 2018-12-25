@@ -72,22 +72,22 @@ namespace PerunDrawer
 			
 			FieldInfo field = type.GetField(name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
 			if(field != null)
-				return field.GetCustomAttributes(false).Cast<Attribute>().ToList();
+				return field.GetCustomAttributes(true).Cast<Attribute>().ToList();
 			
 			PropertyInfo property = type.GetProperty(name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
 			if(property != null)
-				return property.GetCustomAttributes(false).Cast<Attribute>().ToList();
+				return property.GetCustomAttributes(true).Cast<Attribute>().ToList();
 			
 			MethodInfo method = type.GetMethod(name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
 			if(method != null)
-				return method.GetCustomAttributes(false).Cast<Attribute>().ToList();
+				return method.GetCustomAttributes(true).Cast<Attribute>().ToList();
 			
 			return null;
 		}
 		
 		public static List<Attribute> GetTypeAttributes(object source)
 		{
-			return source != null ? source.GetType().GetCustomAttributes(false).Cast<Attribute>().ToList() : null;
+			return source != null ? source.GetType().GetCustomAttributes(true).Cast<Attribute>().ToList() : null;
 		}
 		
 		public static List<Attribute> GetElementTypeAttributes(object source)
@@ -95,7 +95,7 @@ namespace PerunDrawer
 			if (source == null)
 				return null;
 			Type type = GetElementType(source);
-			return type != null ? type.GetCustomAttributes(false).Cast<Attribute>().ToList() : null;
+			return type != null ? type.GetCustomAttributes(true).Cast<Attribute>().ToList() : null;
 		}
 
 		public static Type GetElementType(object source)

@@ -54,6 +54,7 @@ public class VisibilityDemo : MonoBehaviour
     public string AItem = "A";
 
     [Visible("ShowType", Types.B)]
+    [Visible("ShowType", Types.A | Types.B, true)]
     public string BItem = "B";
 
     [Visible("ShowType", Types.C)]
