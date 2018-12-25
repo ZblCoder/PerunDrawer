@@ -31,6 +31,7 @@ namespace PerunDrawer
         public PropertyDrawer Property;
         public GenericDrawer Generic;
         public EnumDrawer Enum;
+        public BaseAttributesDrawer BaseAttributes;
         
         public PropertyData PropertyData { get; private set; }
 
@@ -46,6 +47,7 @@ namespace PerunDrawer
             Property = new PropertyDrawer(this);
             Generic = new GenericDrawer(this);
             Enum = new EnumDrawer(this);
+            BaseAttributes = new BaseAttributesDrawer(this);
         }
 
         private void OnDestroy()

@@ -22,9 +22,11 @@ namespace PerunDrawer
 					EditorGUILayout.PropertyField(data.Property, new GUIContent(data.Property.displayName));
 					return;
 				case PropertyData.Types.List:
+					Editor.BaseAttributes.Draw(data);
 					Editor.List.Draw(data);
 					return;
 				case PropertyData.Types.Generic:
+					Editor.BaseAttributes.Draw(data);
 					Editor.Generic.Draw(data);
 					return;
 			}
