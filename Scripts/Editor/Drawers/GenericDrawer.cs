@@ -94,22 +94,19 @@ namespace PerunDrawer
                 case StructDrawerAttribute.ItemTypes.FadeGroup:
                     //EditorGUILayout.GetControlRect(false, 10, GUILayout.Width(8));
                     EditorGUILayout.BeginVertical();
-                    AnimBool animBool = Editor.GetAnimBool(data.Property.propertyPath, data.Property.isExpanded);
                     //data.Property.isExpanded = EditorGUILayout.Foldout(data.Property.isExpanded, new GUIContent(data.Property.displayName));
                     
                     if(EditorGUILayout.DropdownButton(new GUIContent(data.Property.displayName), FocusType.Passive, 
                         data.Property.isExpanded ? Style.FoldoutExpanded : Style.Foldout))
                         data.Property.isExpanded = !data.Property.isExpanded;
                     
-                    animBool.target = data.Property.isExpanded;
-                    if (EditorGUILayout.BeginFadeGroup(animBool.faded))
+                    if (data.Property.isExpanded)
                     {
                         EditorGUI.indentLevel++;
                         DrawProperies(data);
                         EditorGUI.indentLevel--;
                     }
-
-                    EditorGUILayout.EndFadeGroup();
+                    
                     EditorGUILayout.EndVertical();
                     break;
                 case StructDrawerAttribute.ItemTypes.Box:

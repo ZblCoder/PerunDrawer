@@ -36,7 +36,6 @@ namespace PerunDrawer
         public PropertyData PropertyData { get; private set; }
 
         public List<Attribute> Attributes;
-        private Dictionary<string, AnimBool> _foldoutStates = new Dictionary<string, AnimBool>();
         
         private List<DragRect> _dragRects = new List<DragRect>();
         private List<DropRect> _dropRects = new List<DropRect>();
@@ -82,19 +81,6 @@ namespace PerunDrawer
             }
             //else
             //    base.OnInspectorGUI();
-        }
-        
-        public AnimBool GetAnimBool(string path, bool value)
-        {
-            AnimBool result;
-            if (!_foldoutStates.TryGetValue(path, out result))
-            {
-                result = new AnimBool(value);
-                _foldoutStates.Add(path, result);
-                result.valueChanged.RemoveAllListeners();
-                result.valueChanged.AddListener(Repaint);
-            }
-            return result;
         }
 
         public DragRect CreateDragRect()

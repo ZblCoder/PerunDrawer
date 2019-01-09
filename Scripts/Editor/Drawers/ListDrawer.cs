@@ -91,7 +91,6 @@ namespace PerunDrawer
                 dropRect.Action = i => Drop(objParent, obj, path, i);
             }
             
-            AnimBool animBool = Editor.GetAnimBool(data.Property.propertyPath, data.Property.isExpanded);
             // Header
 
             EditorGUILayout.BeginHorizontal(Style.Toolbar);
@@ -103,8 +102,6 @@ namespace PerunDrawer
             
             //Foldout
             
-            animBool.target = data.Property.isExpanded;
-
             EditorGUILayout.LabelField(data.Property != null && data.Property.arraySize > 0 ? data.Property.arraySize + " items" : "empty", Style.ToolbarLabelRight, GUILayout.Width(64));
             
             if (attr.ShowAddButton && GUILayout.Button("", Style.ToolbarAddButton, GUILayout.Width(18)))
@@ -116,9 +113,9 @@ namespace PerunDrawer
             EditorGUILayout.EndHorizontal();
             //
 
-            EditorGUILayout.BeginVertical(data.Property.isExpanded ? Style.ListContent : Style.ListContentEmpty);
+            EditorGUILayout.BeginVertical(data.Property.isExpanded && data.Property.arraySize > 0 ? Style.ListContent : Style.ListContentEmpty);
             
-            if (EditorGUILayout.BeginFadeGroup(animBool.faded))
+            if (data.Property.isExpanded)
                 for (int i = 0; i < data.Property.arraySize; i++)
                 {
                     SerializedProperty itemProperty = data.Property.GetArrayElementAtIndex(i);
@@ -126,14 +123,14 @@ namespace PerunDrawer
                     if(i > 0 && itemProperty.propertyType == SerializedPropertyType.Generic)
                         EditorGUILayout.Space();
                     */
-                    Rect itemRect = EditorGUILayout.BeginHorizontal(Style.ListItem);
+                    Rect itemRect = EditorGUILayout.BeginHorizontal(i % 2 == 0 ? Style.ListItem : Style.ListItem2);
                     if(dropRect != null && data.Property.isExpanded)
                         dropRect.Childs.Add(new Rect(itemRect.x - 5, itemRect.y - 1, itemRect.width + 6, itemRect.height + 2));
 
                     if (attr.ShowDrag)
                     {
                         Rect itemDragRect = EditorGUILayout.GetControlRect(false, 10, Style.ListDragElement,GUILayout.Width(13));
-                        itemDragRect = new Rect(itemDragRect.x, itemDragRect.y + itemRect.height / 2 - 12, 12, 16);
+                        itemDragRect = new Rect(itemDragRect.x, itemDragRect.y + itemRect.height / 2 - 13, 12, 16);
                         GUI.Box(itemDragRect, GUIContent.none, Style.ListDragElement);
                         itemDragRect = new Rect(itemDragRect.x, itemDragRect.y + 6 , 12, 16);
                         GUI.Box(itemDragRect, GUIContent.none, Style.ListDragElement);
@@ -178,7 +175,6 @@ namespace PerunDrawer
 
                     EditorGUILayout.EndHorizontal();
                 }
-            EditorGUILayout.EndFadeGroup();
             
             EditorGUILayout.EndVertical();
             //

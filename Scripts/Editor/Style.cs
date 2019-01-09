@@ -128,7 +128,7 @@ namespace PerunDrawer
                 if (_listContent == null)
                 {
                     _listContent = new GUIStyle();
-                    _listContent.padding = new RectOffset(4, 0, 4, 3);
+                    _listContent.padding = new RectOffset(0, 0, 0, 0);
                 }
                 return _listContent;
             }
@@ -142,7 +142,7 @@ namespace PerunDrawer
                 if (_listContentEmpty == null)
                 {
                     _listContentEmpty = new GUIStyle();
-                    _listContentEmpty.padding = new RectOffset(4, 0, 1, 1);
+                    _listContentEmpty.padding = new RectOffset(0, 0, 1, 1);
                 }
                 return _listContentEmpty;
             }
@@ -156,13 +156,29 @@ namespace PerunDrawer
                 if (_listItem == null)
                 {
                     _listItem = new GUIStyle();
-                    _listItem.margin = new RectOffset(0, 0, 2, 1);
-                    _listItem.padding = new RectOffset(0, 0, 0, 0);
+                    _listItem.margin = new RectOffset(0, 0, 0, 0);
+                    _listItem.padding = new RectOffset(0, 0, 1, 2);
                     //_listItem.margin = new RectOffset(0, 0, 0, 1);
                 }
                 return _listItem;
             }
         }
+        
+        private static GUIStyle _listItem2;
+        public static GUIStyle ListItem2
+        {
+            get
+            {
+                if (_listItem2 == null)
+                {
+                    _listItem2 = new GUIStyle(ListItem);
+                    _listItem2.normal.background = GUI.skin.GetStyle("ShurikenValue").normal.background;
+                }
+                return _listItem2;
+            }
+        }  
+        
+        //(GUIStyle)"Tag MenuItem"
         
         private static GUIStyle _listItemBox;
         public static GUIStyle ListItemBox
@@ -187,7 +203,7 @@ namespace PerunDrawer
                 if (_listDragElement == null)
                 {
                     _listDragElement = new GUIStyle(GUI.skin.GetStyle("RL DragHandle"));
-                    _listDragElement.margin = new RectOffset(0, 0, 7, 0);
+                    _listDragElement.margin = new RectOffset(4, 0, 7, 0);
                 }
                 return _listDragElement;
             }
