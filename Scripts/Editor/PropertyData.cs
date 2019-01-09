@@ -215,7 +215,7 @@ namespace PerunDrawer
         public void AddNewItem()
         {
             Type type = Utilities.GetElementType(Value);
-            InsertItem(Property.arraySize, Activator.CreateInstance(type));
+            InsertItem(Property.arraySize, type != typeof(string) ? Activator.CreateInstance(type) : "");
         }
         
         public void InsertItem(int index, object value)

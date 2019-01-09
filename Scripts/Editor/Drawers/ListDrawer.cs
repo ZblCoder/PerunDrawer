@@ -106,6 +106,8 @@ namespace PerunDrawer
             
             if (attr.ShowAddButton && GUILayout.Button("", Style.ToolbarAddButton, GUILayout.Width(18)))
             {
+                if (data.Property.arraySize == 0)
+                    data.Property.isExpanded = true;
                 data.AddNewItem();
                 data.Property.serializedObject.ApplyModifiedProperties();
             }
