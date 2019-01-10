@@ -9,6 +9,21 @@ namespace PerunDrawer
 {
 	public static class Utilities
 	{
+		public static Type GetType(Type type, string name)
+		{
+			if (type != null)
+			{
+				FieldInfo field = type.GetField(name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+				if (field != null)
+					return field.FieldType;
+
+				PropertyInfo property = type.GetProperty(name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+				if (property != null)
+					return property.PropertyType;
+			}
+			return null;
+		}
+		
 		public static T GetValue<T>(object source, string name, T defaultValue)
 		{
 			T result;
@@ -98,12 +113,19 @@ namespace PerunDrawer
 			return type != null ? type.GetCustomAttributes(true).Cast<Attribute>().ToList() : null;
 		}
 
+		public static Type GetElementType(Type type)
+		{
+			if (type == null)
+				return null;
+			return type.IsGenericType ? type.GetGenericArguments().First() : type.GetElementType();
+		}
+		
 		public static Type GetElementType(object source)
 		{
 			if (source == null)
 				return null;
 			Type listType = source.GetType();
-			return listType.IsGenericType ? listType.GetGenericArguments().First() : listType.GetElementType();
+			return GetElementType(listType);
 		}
 		
 		public static object GetParent(SerializedProperty prop)

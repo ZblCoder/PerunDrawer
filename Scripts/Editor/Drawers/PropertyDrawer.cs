@@ -44,7 +44,7 @@ namespace PerunDrawer
 			/*
 			EditorGUILayout.BeginHorizontal();
 			EditorGUILayout.LabelField(data.Property.propertyPath.Replace(".Array.data[", "["));
-			EditorGUILayout.LabelField((data.Value != null ? data.Value.GetType().ToString() : "null"));
+			EditorGUILayout.LabelField((data.Value != null ? data.ValueType.ToString() : "null"));
 			EditorGUILayout.EndHorizontal();
 			
 			if (data.Attributes != null)

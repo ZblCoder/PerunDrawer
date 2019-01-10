@@ -23,7 +23,7 @@ namespace PerunDrawer
 				if(!data.Attributes.Exists(e => e is HideLabelAttribute))
 					EditorGUILayout.LabelField(new GUIContent(data.Property.displayName), GUILayout.Width(EditorGUIUtility.labelWidth - 5));
 				
-				Array list = Enum.GetValues(data.Value.GetType());
+				Array list = Enum.GetValues(data.ValueType);
 				if (list.Length > 0)
 				{
 					int buttonsIntValue = data.Property.intValue;

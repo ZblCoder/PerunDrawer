@@ -1,66 +1,65 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using PerunDrawer;
 using UnityEngine;
 using Random = System.Random;
 
 public class TestBehaviour : MonoBehaviour
 {
-    [Flags] 
-    public enum Types {   
-        None = 0,
-        A = 1 << 1,
-        B = 1 << 2,
-        C = 1 << 3,
-        D = 1 << 4,
-        AB = A | B,
-        ALL = AB | C | D
+
+    [Serializable]
+    public class TestItem
+    {
+        public int IntValue;
+        public string StrValue;
     }
     
     [Serializable]
-    public struct MyStruct
+    public class TestItemGroup
     {
-        [EnumButtons]
-        public Types Types1;
+        public int IntValue;
+        public string StrValue;
+        public TestItem[] Gruops;
         
-        public string strValue;
+        public List<TestItem> Gruops1;
     }
 
-    [Order(1)]
-    public MyStruct Struct;
+    public TestItemGroup[] arrayValue;
     
-    public Types EnumValue;
-
-    [EnumButtons]
-    public Types EnumValue1;
-
-    [EnumButtons]
-    [Order(-1)]
-    public Types EnumValue2;
-    
-    
-    public enum Types2 {   
-        A,
-        B,
-        C
+    /*
+    [Serializable]
+    public class Item
+    {
+        [Space]
+        public int IntValue;
+        public string StrValue;
+        public TestObjectMyDrawer MyDrawer;
+        
+        public Item()
+        {
+            IntValue = new Random().Next(100);
+        }
     }
     
-    public Types2 EnumValue3;
+    public int IntValue;
+    [Space]
+    public int IntValue2;
+    [Space]
+    public TestObjectMyDrawer ItemValuea;
     
-    [EnumButtons, HideLabel]
-    public Types2 EnumValue4;
-    
-    
-    
-    //[HideLabel]
-    
-    
-    
-    
-    
-    
-    
-/*
+    [Space]
+    [Header("Header")]
+    [Space]
+    public int IntValue3;
+
+    [Space] 
+    [Header("Header")]
+    [Space] 
+    public TestObjectMyDrawer ItemValue;
+
+
     public bool Visible = true;
 
     [Visible("Visible")]

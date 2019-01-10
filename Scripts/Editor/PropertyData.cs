@@ -45,6 +45,22 @@ namespace PerunDrawer
             }
         }
         
+        private Type _valueType;
+        public Type ValueType
+        {
+            get
+            {
+                if (_valueType == null)
+                {
+                    if (Value != null)
+                        _valueType = Value.GetType();
+                    else if (Parent != null)
+                        _valueType = Utilities.GetType(Parent.ValueType, Property.name);
+                }
+                return _valueType;
+            }
+        }
+        
         private object _value;
         public object Value
         {
@@ -108,8 +124,8 @@ namespace PerunDrawer
             {
                 if (Parent.Type == Types.List)
                 {
-                    Type listType = Parent.Value.GetType();
-                    if (listType.IsArray)
+                    Type listType = Parent.ValueType;
+                    if (Parent.ValueType.IsArray)
                     {
                         int i = 0;
                         foreach (var item in Parent.Value as IEnumerable)
@@ -138,12 +154,11 @@ namespace PerunDrawer
                 // todo
             }
             
-            var type = Parent.Value.GetType();
-            var field = type.GetField(Property.name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+            var field = Parent.ValueType.GetField(Property.name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
             if(field != null)
                 return field.GetValue(Parent.Value);
 			
-            var property = type.GetProperty(Property.name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+            var property = Parent.ValueType.GetProperty(Property.name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
             if(property != null)
                 return property.GetValue(Parent.Value, null);
 			
@@ -155,15 +170,14 @@ namespace PerunDrawer
             if(Parent == null || Parent.Value == null)
                 return;
             
-            var type = Parent.Value.GetType();
-            var field = type.GetField(Property.name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+            var field = Parent.ValueType.GetField(Property.name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
             if (field != null)
             {
                 field.SetValue(Parent.Value, value);
                 return;
             }
             
-            var property = type.GetProperty(Property.name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+            var property = Parent.ValueType.GetProperty(Property.name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
             if (property != null)
             {
                 property.SetValue(Parent.Value, value, null);
@@ -214,27 +228,36 @@ namespace PerunDrawer
 
         public void AddNewItem()
         {
-            Type type = Utilities.GetElementType(Value);
+            Type type = Utilities.GetElementType(ValueType);
             InsertItem(Property.arraySize, type != typeof(string) ? Activator.CreateInstance(type) : "");
         }
         
         public void InsertItem(int index, object value)
         {
-            Type listType = Value.GetType();
-            if (listType.IsArray)
+            if (ValueType.IsArray)
             {
-                Type type = Utilities.GetElementType(Value);
+                Type type = Utilities.GetElementType(ValueType);
                 Type genericListType = typeof(List<>).MakeGenericType(type);
                 var list = (IList)Activator.CreateInstance(genericListType);
-                foreach (var e in (IEnumerable)Value)
-                    list.Add(e);
+                if(Value != null)
+                    foreach (var e in (IEnumerable)Value)
+                        list.Add(e);
                 list.Insert(index, value);
                 var array = Array.CreateInstance(type, Property.arraySize + 1);
                 list.CopyTo(array, 0);
                 Utilities.SetValue(Parent.Value, Property.name, array);
             }
             else
-                ((IList) Value).Insert(index, value);
+            {
+                if (Value == null)
+                {
+                    var list = (IList)Activator.CreateInstance(ValueType);
+                    list.Add(value);
+                    Utilities.SetValue(Parent.Value, Property.name, list);
+                }
+                else
+                    ((IList) Value).Insert(index, value);
+            }
         }
         
         public bool IsSelfDrawer()
@@ -253,8 +276,7 @@ namespace PerunDrawer
                                 _typesSelfDrawer.Add(field.GetValue(a) as Type);
                             
             }
-            Type type = Value.GetType();
-            return _typesSelfDrawer.Exists(e => e == type);
+            return _typesSelfDrawer.Exists(e => e == ValueType);
         }
     }
 }
