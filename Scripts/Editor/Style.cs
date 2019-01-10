@@ -172,7 +172,7 @@ namespace PerunDrawer
                 if (_listItem2 == null)
                 {
                     _listItem2 = new GUIStyle(ListItem);
-                    _listItem2.normal.background = GUI.skin.GetStyle("ShurikenValue").normal.background;
+                    _listItem2.normal.background = GUI.skin.GetStyle("CN EntryBackEven").normal.background;
                 }
                 return _listItem2;
             }

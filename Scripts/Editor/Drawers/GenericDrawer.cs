@@ -99,12 +99,13 @@ namespace PerunDrawer
                     if(EditorGUILayout.DropdownButton(new GUIContent(data.Property.displayName), FocusType.Passive, 
                         data.Property.isExpanded ? Style.FoldoutExpanded : Style.Foldout))
                         data.Property.isExpanded = !data.Property.isExpanded;
-                    
+
                     if (data.Property.isExpanded)
                     {
-                        EditorGUI.indentLevel++;
+                        int lastIndent = EditorGUI.indentLevel;
+                        EditorGUI.indentLevel = 1;
                         DrawProperies(data);
-                        EditorGUI.indentLevel--;
+                        EditorGUI.indentLevel = lastIndent;
                     }
                     
                     EditorGUILayout.EndVertical();

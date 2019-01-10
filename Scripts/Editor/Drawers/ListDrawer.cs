@@ -131,10 +131,10 @@ namespace PerunDrawer
 
                     if (attr.ShowDrag)
                     {
-                        Rect itemDragRect = EditorGUILayout.GetControlRect(false, 10, Style.ListDragElement,GUILayout.Width(13));
-                        itemDragRect = new Rect(itemDragRect.x, itemDragRect.y + itemRect.height / 2 - 13, 12, 16);
+                        Rect itemDragRect = EditorGUILayout.GetControlRect(false, 10, Style.ListDragElement, GUILayout.Width(13));
+                        itemDragRect = new Rect(itemDragRect.x, itemDragRect.y + itemRect.height / 2 - 13, itemDragRect.width - 4, 16);
                         GUI.Box(itemDragRect, GUIContent.none, Style.ListDragElement);
-                        itemDragRect = new Rect(itemDragRect.x, itemDragRect.y + 6 , 12, 16);
+                        itemDragRect = new Rect(itemDragRect.x, itemDragRect.y + 6, itemDragRect.width, 16);
                         GUI.Box(itemDragRect, GUIContent.none, Style.ListDragElement);
                         
                         //GUI.Box(itemDragRect, GUIContent.none, Style.ListDragElement);
