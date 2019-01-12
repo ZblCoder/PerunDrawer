@@ -198,19 +198,19 @@ namespace PerunDrawer
 
         private void UpdateAttributes()
         {
+            _attributes = new List<Attribute>();
+
             if (Parent != null)
             {
-                _attributes = new List<Attribute>();
-                if (Parent.Type == Types.List && Type == Types.Generic)
-                    AddAttributes(Parent.Attributes);
-                
+                //if (Parent.Type == Types.List && Type == Types.Generic)
+                //    AddAttributes(Parent.Attributes);
+
                 AddAttributes(Utilities.GetAttributes(Parent.Value, Property.name));
-                AddAttributes(Utilities.GetTypeAttributes(Value));
-                //if (Parent.Type == Types.List)
-                //    AddAttributes(Utilities.GetElementTypeAttributes(Parent.Value));
             }
-            else
-                _attributes = Utilities.GetTypeAttributes(Value);
+
+            AddAttributes(Utilities.GetTypeAttributes(Value));
+            //if (Parent.Type == Types.List)
+            //    AddAttributes(Utilities.GetElementTypeAttributes(Parent.Value));
 
             if (_attributes == null)
                 _attributes = new List<Attribute>();

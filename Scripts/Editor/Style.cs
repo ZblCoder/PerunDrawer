@@ -57,8 +57,18 @@ namespace PerunDrawer
                     _caption = new GUIStyle(GUI.skin.GetStyle("BoldLabel"));
                     _caption.alignment = TextAnchor.MiddleCenter;
                 }
-
                 return _caption;
+            }
+        }
+        
+        private static GUIStyle _boldLabel;
+        public static GUIStyle BoldLabel
+        {
+            get
+            {
+                if (_boldLabel == null)
+                    _boldLabel = new GUIStyle(GUI.skin.GetStyle("BoldLabel"));
+                return _boldLabel;
             }
         }
         

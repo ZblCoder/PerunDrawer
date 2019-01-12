@@ -27,7 +27,7 @@ namespace PerunDrawer
         private void DrawHeader(HeaderAttribute attribute)
         {
             GUILayoutUtility.GetRect(6f, 6f);
-            EditorGUILayout.LabelField(attribute.header, new GUIStyle() {fontStyle = FontStyle.Bold});
+            EditorGUILayout.LabelField(attribute.header, Style.BoldLabel);
         }
     }
 }
