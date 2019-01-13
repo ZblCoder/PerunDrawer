@@ -1,20 +1,19 @@
 # PerunDrawer
 PerunDrawer - это плагин для Unity, который облегчает работу с инспектором и списками в нем.
 
-Возможности:
+**Возможности**
+
 * Перетаскивание элементов списка при помощи DragAndDrop;
 * Добавление нового элемента списка одним кликом с вызовом конструктора;
 * Настройка вывода инспектора при помощи одних атрибутов, без написания отдельных скриптов;
 * Поддержка перечислений с битовой маской и отображением в виде переключающихся кнопок;
 * Вызов метода скрипта при помощи кнопки;
 
-**Стандартный инспектор скрипта**
+**Пример**
 
-![Default unity list](https://github.com/ZblCoder/PerunDrawer/blob/wiki/wiki/Main_DefaultList.png)
-
-**Отображение инспектора с плагином PerunDrawer**
-
-![Perun list](https://github.com/ZblCoder/PerunDrawer/blob/wiki/wiki/Main_PerunList.png)
+**Стандартный инспектор скрипта** | **Отображение инспектора с плагином PerunDrawer**
+--|--
+![Default unity list](https://github.com/ZblCoder/PerunDrawer/blob/wiki/wiki/Main_DefaultList.png) | ![Perun list](https://github.com/ZblCoder/PerunDrawer/blob/wiki/wiki/Main_PerunList.png)
 
 ```csharp
 public class PerunDraverDemo : MonoBehaviour
