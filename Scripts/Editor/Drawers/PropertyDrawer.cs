@@ -15,31 +15,42 @@ namespace PerunDrawer
 		{
 			if(!IsVisible(data))
 				return;
+
+			bool isDisabled = !IsEnabled(data);
+
+			if (isDisabled)
+				Editor.IsDisabled = true;
 			
 			switch (data.Type)
 			{
 				case PropertyData.Types.SelfDrawer:
+					EditorGUI.BeginDisabledGroup(Editor.IsDisabled);
 					EditorGUILayout.PropertyField(data.Property, new GUIContent(data.Property.displayName));
-					return;
+					EditorGUI.EndDisabledGroup();
+					break;
 				case PropertyData.Types.List:
 					Editor.BaseAttributes.Draw(data);
 					Editor.List.Draw(data);
-					return;
+					break;
 				case PropertyData.Types.Generic:
 					Editor.BaseAttributes.Draw(data);
 					Editor.Generic.Draw(data);
-					return;
-			}
-
-			if (data.Property.propertyType == SerializedPropertyType.Enum)
-			{
-				Editor.Enum.Draw(data);
-				return;
+					break;
+				default:
+					EditorGUI.BeginDisabledGroup(Editor.IsDisabled);
+					if (data.Property.propertyType != SerializedPropertyType.Enum)
+					{
+						GUIContent labelText = data.Attributes.Exists(e => e is HideLabelAttribute) ? GUIContent.none : new GUIContent(data.Property.displayName);
+						EditorGUILayout.PropertyField(data.Property, labelText, true);
+					}
+					else
+						Editor.Enum.Draw(data);
+					EditorGUI.EndDisabledGroup();
+					break;
 			}
 			
-			GUIContent labelText = data.Attributes.Exists(e => e is HideLabelAttribute) ? GUIContent.none : new GUIContent(data.Property.displayName);
-			
-			EditorGUILayout.PropertyField(data.Property, labelText, true);
+			if (isDisabled)
+				Editor.IsDisabled = false;
 			
 			/*
 			EditorGUILayout.BeginHorizontal();
@@ -66,6 +77,9 @@ namespace PerunDrawer
 		
 		private bool IsVisible(PropertyData data)
 		{
+			if (Editor.IsDisabled)
+				return true;
+			
 			bool visible = true;
 			foreach (var attr in data.Attributes)
 				if(attr is VisibleAttribute)
@@ -100,8 +114,49 @@ namespace PerunDrawer
 						EditorGUILayout.HelpBox("VisibleAttribute: MemberName \"" + visibleAttr.MemberName + "\" not found!", MessageType.Error);
 					}
 				}
-			
 			return visible;
+		}
+		
+		private bool IsEnabled(PropertyData data)
+		{
+			bool enabled = true;
+			foreach (var attr in data.Attributes)
+			{
+				EnabledAttribute enabledAttr = attr as EnabledAttribute;
+				if (enabledAttr != null)
+				{
+					if (enabledAttr.Value == null)
+					{
+						bool visibleValue;
+						if (Utilities.GetValue(data.Parent.Value, enabledAttr.MemberName, out visibleValue))
+							enabled = enabled && (enabledAttr.IsNot ? !visibleValue : visibleValue);
+						else
+							EditorGUILayout.HelpBox("EnabledAttribute: MemberName \"" + enabledAttr.MemberName + "\" not found!", MessageType.Error);
+					}
+					else
+					{
+						object enabledValue;
+						if (Utilities.GetValue(data.Parent.Value, enabledAttr.MemberName, out enabledValue, false)
+						    && enabledValue.GetType() == enabledAttr.Value.GetType())
+						{
+							if (enabledValue.GetType().IsEnum && enabledAttr.Value.GetType().IsEnum
+							    && enabledValue.GetType().GetCustomAttributes(false).ToList().Exists(e => e is FlagsAttribute)
+							    && (int) enabledValue != 0 && (int) enabledAttr.Value != 0)
+							{
+								enabled = enabled && (enabledAttr.IsNot
+									          ? ((int) enabledValue & (int) enabledAttr.Value) != (int) enabledAttr.Value
+									          : ((int) enabledValue & (int) enabledAttr.Value) == (int) enabledAttr.Value);
+								continue;
+							}
+
+							enabled = enabled && (enabledAttr.IsNot ? !Equals(enabledValue, enabledAttr.Value) : Equals(enabledValue, enabledAttr.Value));
+							continue;
+						}
+						EditorGUILayout.HelpBox("EnabledAttribute: MemberName \"" + enabledAttr.MemberName + "\" not found!", MessageType.Error);
+					}
+				}
+			}
+			return enabled;
 		}
 	}
 }

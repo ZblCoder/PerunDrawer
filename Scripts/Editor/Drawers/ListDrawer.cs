@@ -78,7 +78,8 @@ namespace PerunDrawer
             
             Rect rect = EditorGUILayout.BeginVertical(Style.ListBackground);
             PerunEditor.DropRect dropRect = null;
-            if (Event.current.type == EventType.Repaint)
+            
+            if (!Editor.IsDisabled && Event.current.type == EventType.Repaint)
             {
                 dropRect = Editor.CreateDropRect();
                 dropRect.Position = rect;
@@ -96,6 +97,7 @@ namespace PerunDrawer
             EditorGUILayout.BeginHorizontal(Style.Toolbar);
             
             //data.Property.isExpanded = EditorGUILayout.Foldout(data.Property.isExpanded, new GUIContent(data.Property.displayName));
+            
             if(EditorGUILayout.DropdownButton(new GUIContent(data.Property.displayName), FocusType.Passive, 
                 data.Property.isExpanded ? Style.FoldoutExpanded : Style.Foldout))
                 data.Property.isExpanded = !data.Property.isExpanded;
@@ -104,6 +106,7 @@ namespace PerunDrawer
             
             EditorGUILayout.LabelField(data.Property != null && data.Property.arraySize > 0 ? data.Property.arraySize + " items" : "empty", Style.ToolbarLabelRight, GUILayout.Width(64));
             
+            EditorGUI.BeginDisabledGroup(Editor.IsDisabled);
             if (attr.ShowAddButton && GUILayout.Button("", Style.ToolbarAddButton, GUILayout.Width(18)))
             {
                 if (data.Property.arraySize == 0)
@@ -111,6 +114,7 @@ namespace PerunDrawer
                 data.AddNewItem();
                 data.Property.serializedObject.ApplyModifiedProperties();
             }
+            EditorGUI.EndDisabledGroup();
 
             EditorGUILayout.EndHorizontal();
             //
@@ -126,7 +130,7 @@ namespace PerunDrawer
                         EditorGUILayout.Space();
                     */
                     Rect itemRect = EditorGUILayout.BeginHorizontal(i % 2 == 0 ? Style.ListItem : Style.ListItem2);
-                    if(dropRect != null && data.Property.isExpanded)
+                    if(!Editor.IsDisabled && dropRect != null && data.Property.isExpanded)
                         dropRect.Childs.Add(new Rect(itemRect.x - 5, itemRect.y - 1, itemRect.width + 6, itemRect.height + 2));
 
                     if (attr.ShowDrag)
@@ -140,7 +144,7 @@ namespace PerunDrawer
                         //GUI.Box(itemDragRect, GUIContent.none, Style.ListDragElement);
                         //EditorGUI.DropdownButton(itemDragRect, GUIContent.none, FocusType.Passive, Style.ListDragElement);
 
-                        if (Event.current.type == EventType.Repaint)
+                        if (!Editor.IsDisabled && Event.current.type == EventType.Repaint)
                         {
                             PerunEditor.DragRect dragRect = Editor.CreateDragRect();
                             dragRect.Position = new Rect(itemDragRect.x - 3, itemRect.y, itemDragRect.width + 6, itemRect.height);
@@ -166,8 +170,10 @@ namespace PerunDrawer
                         Rect deleteRect = EditorGUILayout.GetControlRect(false, 16, GUILayout.Width(16));  
                         deleteRect = new Rect(deleteRect.x, deleteRect.y + itemRect.height / 2 - 10, 16, 16);
 
+                        EditorGUI.BeginDisabledGroup(Editor.IsDisabled);
                         if (GUI.Button(deleteRect, GUIContent.none, Style.ListDeleteItem))
                             data.Property.DeleteArrayElementAtIndex(i);
+                        EditorGUI.EndDisabledGroup();
 
                         /*
                         if (GUILayout.Button("", Style.ListDeleteItem, GUILayout.Width(16)))

@@ -32,6 +32,7 @@ namespace PerunDrawer
         public GenericDrawer Generic;
         public EnumDrawer Enum;
         public BaseAttributesDrawer BaseAttributes;
+        public bool IsDisabled = false;
         
         public PropertyData PropertyData { get; private set; }
 
