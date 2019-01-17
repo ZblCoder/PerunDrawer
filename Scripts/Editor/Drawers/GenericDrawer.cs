@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
-using UnityEditor.AnimatedValues;
 using UnityEngine;
 
 namespace PerunDrawer
@@ -13,14 +11,31 @@ namespace PerunDrawer
     {
         public GenericDrawer(PerunEditor editor) : base(editor) {}
      
-        OrderItem.Comparer _comparer = new OrderItem.Comparer(); 
-        
         private class OrderItem
         {
             public int Order = 0;
             public int Index = 0;
             public PropertyData Data;
 
+            public string Name = "";
+            public GroupAttribute GroupAttribute;
+            public List<OrderItem> Childs;
+
+            public OrderItem(string name, int index)
+            {
+                Index = index;
+                Childs = new List<OrderItem>();
+            }
+            
+            public OrderItem(GroupAttribute groupAttribute, int index)
+            {
+                var pathList = groupAttribute.Name.Split('/');
+                Name = pathList[pathList.Length - 1];
+                GroupAttribute = groupAttribute;
+                Index = index;
+                Childs = new List<OrderItem>();
+            }
+            
             public OrderItem(PropertyData data, int index)
             {
                 Data = data;
@@ -29,7 +44,77 @@ namespace PerunDrawer
                 if (orderAttr != null)
                     Order = orderAttr.Order;
             }
+
+            public OrderItem FindPath(OrderItem item, string path = "")
+            {
+                var parent = this;
+                var pathList = path.Split('/').ToList();
+                while (pathList.Count > 0)
+                {
+                    if(parent == null)
+                        break;
+                    if (!string.IsNullOrEmpty(pathList[0]))
+                    {
+                        var pathItem = parent.Childs.FirstOrDefault(e => e.Name.Equals(pathList[0], StringComparison.OrdinalIgnoreCase));
+                        if (pathItem == null)
+                        {
+                            var newItem = pathList.Count > 1 ? new OrderItem(pathList[0], item.Index) : item;
+                            parent.Childs.Add(newItem);
+                            parent = newItem;
+                        }
+                        else
+                            parent = pathItem;
+                    }
+                    pathList.RemoveAt(0);
+                }
+                return parent;
+            }
             
+            public void Add(OrderItem item, string path = "")
+            {
+                var parent = FindPath(item, path);
+                
+                if (item.Data == null)
+                    return;
+                if(parent != null)
+                    parent.Childs.Add(item);
+                else
+                    Childs.Add(item);
+                
+            }
+            
+            public void Sort()
+            {
+                if (Childs == null)
+                    return;
+                Childs.Sort(_comparer);
+                foreach (var item in Childs)
+                    item.Sort();
+            }
+
+            public void Draw(Action<OrderItem> drawAction)
+            {
+                if (Childs != null)
+                {
+                    if (GroupAttribute != null)
+                    {
+                        EditorGUILayout.BeginVertical("Box");
+                        EditorGUILayout.LabelField(Name, Style.BoldLabel);
+                    }
+
+                    foreach (var item in Childs)
+                        item.Draw(drawAction);
+                    
+                    if (GroupAttribute != null)
+                    {
+                        EditorGUILayout.EndVertical();
+                    }
+                }
+                else
+                    drawAction.Invoke(this);
+            }
+            
+            private static Comparer _comparer = new Comparer();
             public class Comparer : IComparer<OrderItem>
             {
                 public int Compare(OrderItem a, OrderItem b)
@@ -45,7 +130,10 @@ namespace PerunDrawer
             var buttons = Utilities.FindByAttribute<ButtonAttribute, MethodInfo>(data.Value);
             DrawMethodButtons(data, buttons, ButtonAttribute.AlignTypes.Top);
             
-            List<OrderItem> items = new List<OrderItem>();
+            Dictionary<OrderItem, string> itemList = new Dictionary<OrderItem, string>();
+            OrderItem items = new OrderItem("", 0);
+            Dictionary<string, OrderItem> attrList = new Dictionary<string, OrderItem>();
+            
             var iterator = data.Property.Copy();
             int index = 0;
             for (bool enterChildren = true; iterator.NextVisible(enterChildren); enterChildren = false)
@@ -60,15 +148,31 @@ namespace PerunDrawer
                     }
                     else
                     {
-                        items.Add(new OrderItem(itemData, index));
+                        string path = "";
+                        foreach (var attribute in itemData.Attributes.Select(e => e as GroupAttribute))
+                            if (attribute != null)
+                            {
+                                if(!attrList.ContainsKey(attribute.Name))
+                                    attrList.Add(attribute.Name, new OrderItem(attribute, index));
+                                path = path.Length < attribute.Name.Length ? attribute.Name : path;
+                            }
+
+                        itemList.Add(new OrderItem(itemData, index), path);
+                        //var groupAttr = itemData.Attributes.FirstOrDefault(e => e is GroupAttribute) as GroupAttribute;
+                        //items.Add(groupAttr != null ? groupAttr.Name, , new OrderItem(itemData, index));
+                        //AddItem(items, new OrderItem(itemData, index));
                         index++;
                     }
                 }
+
+            foreach (var pair in attrList)
+                items.Add(pair.Value, pair.Key);
+  
+            foreach (var pair in itemList)
+                items.Add(pair.Key, pair.Value);
             
-            items.Sort(_comparer);
-            
-            foreach (var item in items)
-                Editor.Property.Draw(item.Data);
+            items.Sort();
+            items.Draw(e => Editor.Property.Draw(e.Data));
             
             DrawMethodButtons(data, buttons, ButtonAttribute.AlignTypes.Bottom);
         }
