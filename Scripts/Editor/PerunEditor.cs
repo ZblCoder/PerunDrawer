@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
-using UnityEditor.AnimatedValues;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace PerunDrawer
 {
@@ -62,26 +62,30 @@ namespace PerunDrawer
                 _dragRects.Clear();
                 _dropRects.Clear();
             }
-            
-            Attributes = serializedObject.targetObject.GetType().GetCustomAttributes(false).Cast<Attribute>().ToList();
-            //if(Attributes.Exists(o => o is PerunDrawerAttribute))
+            //Stopwatch SW = new Stopwatch();
+            //SW.Start();
+            if (PerunSettings.Enabled) //if(Attributes.Exists(o => o is PerunDrawerAttribute))
             {
+                Attributes = serializedObject.targetObject.GetType().GetCustomAttributes(false).Cast<Attribute>().ToList();
                 EditorGUI.BeginChangeCheck();
                 serializedObject.Update();
 
                 PropertyData = new PropertyData(serializedObject);
                 Generic.Draw(PropertyData);
-                
+
                 DragUpdate();
                 DropUpdate();
                 serializedObject.ApplyModifiedProperties();
                 EditorGUI.EndChangeCheck();
-                
-                if(GUI.changed)
+
+                if (GUI.changed)
                     Repaint();
             }
-            //else
-            //    base.OnInspectorGUI();
+            else
+                base.OnInspectorGUI();
+            //SW.Stop();
+            //EditorGUILayout.Space();
+            //EditorGUILayout.LabelField("Draw time: " + SW.ElapsedMilliseconds + " ms.");
         }
 
         public DragRect CreateDragRect()
